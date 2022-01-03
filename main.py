@@ -27,7 +27,7 @@ ENEMY_SHIP_IMAGES = {
     2: pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png')),
     3: pygame.image.load(os.path.join('Images', 'Enemy_ship_3_500x419.png')),
     4: pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png')),
-    5: pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x275.png'))}
+    5: pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png'))}
 SHOT_IMAGES = {
     'green': pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png')),
     'red': pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png')),
@@ -133,10 +133,11 @@ class EnemyShip:
 
     def update(self):
         # todo implement movement
+        return
 
     def draw(self):
         WIN.blit(self.image, (self.x, self.y))
-
+        return
 
 class Shot:
     def __init__(self, shot_type, starting_coords):
