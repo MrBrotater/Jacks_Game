@@ -19,8 +19,10 @@ START_GAME = pygame.USEREVENT + 3
 
 # IMAGES ------------------------------------------------------------------------------------------
 BG_IMAGES = {
-    0: pygame.image.load(os.path.join('Images', 'Title_screen.png')),
-    1: pygame.image.load(os.path.join('Images', 'Space_background.png'))}
+    0: pygame.transform.scale(
+        pygame.image.load(os.path.join('Images', 'Title_screen.png')), (WIN_WIDTH, WIN_HEIGHT)),
+    1: pygame.transform.scale(
+        pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT))}
 PLAYER_SHIP_IMG = pygame.image.load(os.path.join('Images', 'Player_ship_500x518.png'))
 ENEMY_SHIP_IMAGES = {
     1: pygame.image.load(os.path.join('Images', 'Enemy_ship_1_500x275.png')),
@@ -34,9 +36,11 @@ SHOT_IMAGES = {
     'boss cannon': pygame.image.load(os.path.join('Images', 'Boss_cannon_laser_250x33.png'))}
 
 # MUSIC -------------------------------------------------------------------------------------------
-if MUSIC:
-    pygame.mixer.music.load(os.path.join('Music', 'level_1_music.ogg'))
-    pygame.mixer.music.play(-1, 0.0)
+MUSIC_FILES = {
+    0: os.path.join('Music', 'level_1_music.ogg'),
+    1: os.path.join('Music', 'level_2_music.mp3'),
+    2: os.path.join('Music', 'boss_music.mp3')
+}
 
 
 class PlayerShip:
@@ -83,39 +87,24 @@ class EnemyShip:
         self.ship_dict = {
             1: {
                 'height': 150,
-                'width': 150,
-                'speed': 10,
-                'guns': 2,
-                'gun positions': [0.2, 0.8]},
+                'width': 150},
             2: {
                 'height': 150,
-                'width': 150,
-                'speed': 10,
-                'guns': 2,
-                'gun positions': [0.2, 0.8]},
+                'width': 150},
             3: {
                 'height': 150,
-                'width': 150,
-                'speed': 10,
-                'guns': 2,
-                'gun positions': [0.2, 0.8]},
+                'width': 150},
             4: {
                 'height': 150,
-                'width': 150,
-                'speed': 10,
-                'guns': 2,
-                'gun positions': [0.2, 0.8]},
+                'width': 150},
             5: {
                 'height': 150,
-                'width': 150,
-                'speed': 10,
-                'guns': 2,
-                'gun positions': [0.2, 0.8]}}
+                'width': 150}}
         self.height = self.ship_dict[self.ship_type]['height']
         self.width = self.ship_dict[self.ship_type]['width']
         self.x = WIN_WIDTH - self.width
         self.y = random.randint(0, WIN_HEIGHT - self.height)
-        self.speed = self.ship_dict[self.ship_type]['speed']
+        self.speed = 10
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.image = pygame.transform.scale(ENEMY_SHIP_IMAGES[self.ship_type], (self.width, self.height))
         self.direction = 1
@@ -139,6 +128,7 @@ class EnemyShip:
         WIN.blit(self.image, (self.x, self.y))
         return
 
+
 class Shot:
     def __init__(self, shot_type, starting_coords):
         self.shot_type = shot_type
@@ -146,13 +136,18 @@ class Shot:
             'player': {
                 'height': 10,
                 'width': 50,
-                'image': 'Green_laser_200x38.png',
+                'image': SHOT_IMAGES['green'],
                 'speed': 10},
             'enemy': {
                 'height': 10,
                 'width': 50,
-                'image': 'Red_laser_200x37.png',
-                'speed': -10
+                'image': SHOT_IMAGES['red'],
+                'speed': -10},
+            'boss cannon': {
+                'height': 20,
+                'width': 100,
+                'image': SHOT_IMAGES['boss cannon'],
+                'speed': -15
             }
         }
         self.height = self.shot_dict[self.shot_type]['height']
@@ -160,9 +155,7 @@ class Shot:
         self.x, self.y = starting_coords
         self.speed = self.shot_dict[self.shot_type]['speed']
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.image = pygame.transform.scale(
-            pygame.image.load(os.path.join(
-                'Images', self.shot_dict[self.shot_type]['image'])), (self.width, self.height))
+        self.image = pygame.transform.scale(self.shot_dict[self.shot_type]['image'], (self.width, self.height))
 
     def update(self):
         self.x += self.speed
@@ -181,11 +174,19 @@ class MainApp:
         self.ships_on_screen = []
         self.player_shots_on_screen = []
         self.enemy_shots_on_screen = []
+        self.levels = {
+            0: (0, 0),
+            1: (1, 1),
+            2: (2, 2),
+            3: (3, 3),
+            4: (4, 4),
+            5: (5, 5)
+        }
 
     def check_events(self):
         event_dict = {
             pygame.QUIT: self.event_quit,
-            NEXT_GAME_PHASE: self.event_next_phase,
+            NEXT_GAME_PHASE: self.event_next_level,
         }
 
         for event in pygame.event.get():
@@ -193,7 +194,7 @@ class MainApp:
                 event_dict[event.type]()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and self.level == 0:
-                    self.level += 1
+                    self.event_next_level()
                 if event.key == pygame.K_SPACE:
                     shot = self.player.shoot(self.player_shots_on_screen)
                     if shot is not None:
@@ -205,9 +206,18 @@ class MainApp:
         pygame.quit()
         return
 
-    def event_next_phase(self):
+    def event_next_level(self):
         self.level += 1
+        if MUSIC:
+            pygame.mixer.music.load(MUSIC_FILES[self.level])
+            pygame.mixer.music.play(-1, 0.0)
+            self.spawn_enemies(2, 2)
         return
+
+    def spawn_enemies(self, ship_type, number):
+        for i in range(0, number):
+            ship = EnemyShip(ship_type)
+            self.ships_on_screen.append(ship)
 
     def update_shots(self):
         for shot in self.player_shots_on_screen:
@@ -236,6 +246,9 @@ class MainApp:
         return
 
     def main(self):
+        if MUSIC:
+            pygame.mixer.music.load(MUSIC_FILES[self.level])
+            pygame.mixer.music.play(-1, 0.0)
         while self.run:
             self.clock.tick(FPS)
             self.check_events()
