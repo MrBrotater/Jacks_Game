@@ -21,6 +21,8 @@ BG_IMAGES = {
     0: pygame.transform.scale(
         pygame.image.load(os.path.join('Images', 'Title_screen.png')), (WIN_WIDTH, WIN_HEIGHT)),
     1: pygame.transform.scale(
+        pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT)),
+    2: pygame.transform.scale(
         pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT))}
 PLAYER_SHIP_IMG = pygame.image.load(os.path.join('Images', 'Player_ship_500x518.png'))
 ENEMY_SHIP_IMAGES = {
@@ -28,7 +30,8 @@ ENEMY_SHIP_IMAGES = {
     2: pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png')),
     3: pygame.image.load(os.path.join('Images', 'Enemy_ship_3_500x419.png')),
     4: pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png')),
-    5: pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png'))}
+    5: pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png')),
+    6: pygame.image.load(os.path.join('Images', 'Boss_ship_750x487.png'))}
 SHOT_IMAGES = {
     'green': pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png')),
     'red': pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png')),
@@ -40,6 +43,9 @@ MUSIC_FILES = {
     1: os.path.join('Music', 'level_2_music.mp3'),
     2: os.path.join('Music', 'boss_music.mp3')
 }
+
+# SOUND EFFECTS --------------------------------------------------------------------------------------
+PLAYER_SHOT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'laser.wav'))
 
 
 class PlayerShip:
@@ -63,6 +69,7 @@ class PlayerShip:
                 1: (self.x + self.width, self.y + self.height * 0.66)}
             shot = Shot('player', self.gun_positions[self.shot_toggle])
             self.shot_toggle = self.shot_toggle * -1
+            pygame.mixer.Sound.play(PLAYER_SHOT_SOUND)
             return shot
         return None
 
@@ -99,7 +106,11 @@ class EnemyShip:
                 'width': 100},
             5: {
                 'height': 341 // 5,
-                'width': 100}}
+                'width': 100},
+            6: {
+                'height': 487 // 1.3,
+                'width': 750 // 1.3
+            }}
         self.height = self.ship_dict[self.ship_type]['height']
         self.width = self.ship_dict[self.ship_type]['width']
         self.x = random.randint(WIN_WIDTH // 2, WIN_WIDTH - self.width)
@@ -184,16 +195,19 @@ class MainApp:
         self.win = window
         self.run = True
         self.level = 0
+        self.game_phase = 0
+        self.change_game_phase = [1, 5]
         self.player = PlayerShip()
         self.ships_on_screen = []
         self.player_shots_on_screen = []
         self.enemy_shots_on_screen = []
-        self.levels = {  # todo make this work
+        self.level_spawns = {  # todo make this work
             0: [(0, 0)],
             1: [(1, 1), (2, 1)],
             2: [(2, 3)],
             3: [(3, 1), (4, 1)],
-            4: [(4, 1), (1, 5)]
+            4: [(4, 1), (1, 5)],
+            5: [(6, 1)]
         }
 
     def check_events(self):
@@ -208,6 +222,8 @@ class MainApp:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     self.event_next_level()
+                    if self.level == 1:
+                        self.game_phase = 1
                 if event.key == pygame.K_SPACE:
                     shot = self.player.shoot(self.player_shots_on_screen)
                     if shot is not None:
@@ -219,15 +235,20 @@ class MainApp:
         pygame.quit()
         return
 
+    def event_next_game_phase(self):
+        self.game_phase += 1
+        if MUSIC:
+            pygame.mixer.music.load(MUSIC_FILES[self.game_phase])
+            pygame.mixer.music.play(-1, 0.0)
+
     def event_next_level(self):
         self.level += 1
-        enemies_to_spawn = self.levels[self.level]
+        if self.level in self.change_game_phase:
+            self.event_next_game_phase()
+        enemies_to_spawn = self.level_spawns[self.level]
         for spawn in enemies_to_spawn:
             print(spawn)
             self.spawn_enemies(spawn)
-        if MUSIC:
-            pygame.mixer.music.load(MUSIC_FILES[self.level])
-            pygame.mixer.music.play(-1, 0.0)
         return
 
     def spawn_enemies(self, spawn_data):
@@ -253,7 +274,7 @@ class MainApp:
         return
 
     def draw(self, keys_pressed):
-        self.win.blit(BG_IMAGES[self.level], (0, 0))
+        self.win.blit(BG_IMAGES[self.game_phase], (0, 0))
         if self.level > 0:
             self.player.update(keys_pressed)
             self.player.draw()
