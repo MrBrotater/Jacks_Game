@@ -88,7 +88,7 @@ class PlayerShip:
         WIN.blit(self.image, (self.x, self.y))
 
 
-class EnemyShip:
+class EnemyShip: # todo break out enemy ships into individual classes and move to a separate file
     def __init__(self, ship_type):
         self.ship_type = ship_type
         self.ship_dict = {
@@ -201,7 +201,7 @@ class MainApp:
         self.ships_on_screen = []
         self.player_shots_on_screen = []
         self.enemy_shots_on_screen = []
-        self.level_spawns = {  # todo make this work
+        self.level_spawns = {
             0: [(0, 0)],
             1: [(1, 1), (2, 1)],
             2: [(2, 3)],
@@ -247,7 +247,6 @@ class MainApp:
             self.event_next_game_phase()
         enemies_to_spawn = self.level_spawns[self.level]
         for spawn in enemies_to_spawn:
-            print(spawn)
             self.spawn_enemies(spawn)
         return
 
