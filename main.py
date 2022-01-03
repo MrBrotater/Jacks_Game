@@ -14,16 +14,7 @@ MUSIC = True
 # USER EVENTS -------------------------------------------------------------------------------------
 NEXT_GAME_PHASE = pygame.USEREVENT + 1
 PLAYER_SHOT = pygame.USEREVENT + 2
-
-
-# BACKGROUND IMAGES ------------------------------------------------------------------------------
-BG_IMAGES = dict()
-
-BG_IMAGES[0] = pygame.transform.scale(
-    pygame.image.load(os.path.join('Images', 'Title_screen.png')), (WIN_WIDTH, WIN_HEIGHT))
-
-BG_IMAGES[1] = pygame.transform.scale(
-    pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT))
+START_GAME = pygame.USEREVENT + 3
 
 
 # MUSIC -------------------------------------------------------------------------------------------
@@ -55,7 +46,7 @@ class PlayerShip:
             shot = Shot('player', self.gun_positions[self.shot_toggle])
             self.shot_toggle = self.shot_toggle * -1
             return shot
-        return
+        return None
 
     def update(self, keys_pressed):
         if keys_pressed[pygame.K_LEFT] and self.x - self.speed > 0:  # LEFT
@@ -66,12 +57,6 @@ class PlayerShip:
             self.y -= self.speed
         if keys_pressed[pygame.K_DOWN] and self.y + self.speed + self.height < WIN_HEIGHT:  # DOWN
             self.y += self.speed
-
-        # for shot in self.shots_on_screen:
-        #     shot.update()
-        #     shot.draw()
-        #     if shot.x > WIN_WIDTH - shot.width:
-        #         self.shots_on_screen.remove(shot)
 
     def draw(self):
         WIN.blit(self.image, (self.x, self.y))
@@ -135,9 +120,12 @@ class MainApp:
             if event.type in event_dict:
                 event_dict[event.type]()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and self.level == 0:
+                    self.level += 1
                 if event.key == pygame.K_SPACE:
                     shot = self.player.shoot(self.player_shots_on_screen)
-                    self.player_shots_on_screen.append(shot)
+                    if shot is not None:
+                        self.player_shots_on_screen.append(shot)
         return
 
     def event_quit(self):
@@ -160,8 +148,9 @@ class MainApp:
                 self.enemy_shots_on_screen.remove(shot)
         return
 
+
     def draw(self, keys_pressed):
-        self.win.blit(self.BG_IMAGES[self.level])
+        self.win.blit(self.BG_IMAGES[self.level], (0, 0))
         if self.level > 0:
             self.player.update(keys_pressed)
             self.player.draw()
