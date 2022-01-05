@@ -24,7 +24,8 @@ BG_IMAGES = {
         pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT)),
     2: pygame.transform.scale(
         pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT))}
-PLAYER_SHIP_IMG = pygame.image.load(os.path.join('Images', 'Player_ship_500x518.png'))
+PLAYER_SHIP_IMG = pygame.transform.scale(pygame.image.load(
+    os.path.join('Images', 'Player_ship_500x518.png')), (150, 150))
 ENEMY_SHIP_IMAGES = {
     1: pygame.image.load(os.path.join('Images', 'Enemy_ship_1_500x275.png')),
     2: pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png')),
@@ -32,8 +33,10 @@ ENEMY_SHIP_IMAGES = {
     4: pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png')),
     5: pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png')),
     6: pygame.image.load(os.path.join('Images', 'Boss_ship_750x487.png'))}
+GREEN_SHOT_IMAGE = pygame.transform.scale(
+    pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png')), (10, 10))
+
 SHOT_IMAGES = {
-    'green': pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png')),
     'red': pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png')),
     'boss cannon': pygame.image.load(os.path.join('Images', 'Boss_cannon_laser_250x33.png'))}
 
@@ -48,145 +51,118 @@ MUSIC_FILES = {
 PLAYER_SHOT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'laser.wav'))
 
 
-class PlayerShip:
+class PlayerShip(pygame.sprite.Sprite):
     def __init__(self):
+        super().__init__()
         self.height = 150
         self.width = 150
-        self.x, self.y = 0, WIN_HEIGHT / 2 - self.height / 2
+        self.image = PLAYER_SHIP_IMG
+        self.rect = self.image.get_rect()
+        self.x_pos, self.y_pos = self.image.get_width() // 2, WIN_HEIGHT / 2
+        self.rect.center = (self.x_pos, self.y_pos)
         self.speed = 10
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.image = pygame.transform.scale(PLAYER_SHIP_IMG, (self.width, self.height))
-        self.shot_toggle = -1
-        self.gun_positions = {
-            -1: (self.x + self.width, self.y + self.height * 0.33),
-            1: (self.x + self.width, self.y + self.height * 0.66)}
         self.max_shots = 6
 
-    def shoot(self, shots_on_screen):
-        if len(shots_on_screen) < self.max_shots:
-            self.gun_positions = {
-                -1: (self.x + self.width, self.y + self.height * 0.33),
-                1: (self.x + self.width, self.y + self.height * 0.66)}
-            shot = Shot('player', self.gun_positions[self.shot_toggle])
-            self.shot_toggle = self.shot_toggle * -1
+    def shoot(self, sprite_group):
+        if len(sprite_group.sprites()) < self.max_shots:
+            sprite_group.add(GREEN_SHOT_IMAGE, self.rect.midright)
             pygame.mixer.Sound.play(PLAYER_SHOT_SOUND)
-            return shot
-        return None
+        return
 
     def update(self, keys_pressed):
-        if keys_pressed[pygame.K_LEFT] and self.x - self.speed > 0:  # LEFT
-            self.x -= self.speed
-        if keys_pressed[pygame.K_RIGHT] and self.x + self.speed + self.width < WIN_WIDTH:  # RIGHT
-            self.x += self.speed
-        if keys_pressed[pygame.K_UP] and self.y - self.speed > 0:  # UP
-            self.y -= self.speed
-        if keys_pressed[pygame.K_DOWN] and self.y + self.speed + self.height < WIN_HEIGHT:  # DOWN
-            self.y += self.speed
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-
-    def draw(self):
-        WIN.blit(self.image, (self.x, self.y))
+        if keys_pressed[pygame.K_LEFT] and self.x_pos - self.speed > 0:  # LEFT
+            self.x_pos -= self.speed
+        if keys_pressed[pygame.K_RIGHT] and self.x_pos + self.speed + self.width < WIN_WIDTH:  # RIGHT
+            self.x_pos += self.speed
+        if keys_pressed[pygame.K_UP] and self.y_pos - self.speed > 0:  # UP
+            self.y_pos -= self.speed
+        if keys_pressed[pygame.K_DOWN] and self.y_pos + self.speed + self.height < WIN_HEIGHT:  # DOWN
+            self.y_pos += self.speed
+        self.rect.center = (self.x_pos, self.y_pos)
 
 
-class EnemyShip: # todo break out enemy ships into individual classes and move to a separate file
-    def __init__(self, ship_type):
-        self.ship_type = ship_type
-        self.ship_dict = {
-            1: {
-                'height': 275 // 5,
-                'width': 100},
-            2: {
-                'height': 299 // 5,
-                'width': 100},
-            3: {
-                'height': 419 // 5,
-                'width': 100},
-            4: {
-                'height': 126 // 5,
-                'width': 100},
-            5: {
-                'height': 341 // 5,
-                'width': 100},
-            6: {
-                'height': 487 // 1.3,
-                'width': 750 // 1.3
-            }}
-        self.height = self.ship_dict[self.ship_type]['height']
-        self.width = self.ship_dict[self.ship_type]['width']
-        self.x = random.randint(WIN_WIDTH // 2, WIN_WIDTH - self.width)
-        self.y = random.randint(0, WIN_HEIGHT - self.height)
-        self.speed = 3
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.image = pygame.transform.scale(ENEMY_SHIP_IMAGES[self.ship_type], (self.width, self.height))
-        self.x_direction = random.choice([1, -1])
-        self.y_direction = random.choice([1, -1])
 
-    # todo implement random shooting?
-    # def shoot(self, shots_on_screen):
-    #     if len(shots_on_screen) < self.max_shots:
-    #         self.gun_positions = {
-    #             -1: (self.x + self.width, self.y + self.height * 0.33),
-    #             1: (self.x + self.width, self.y + self.height * 0.66)}
-    #         shot = Shot('player', self.gun_positions[self.shot_toggle])
-    #         self.shot_toggle = self.shot_toggle * -1
-    #         return shot
-    #     return None
+class Projectile:
+    def __init__(self, image, coords):
+        super.__init__()
+        self.image = image
+        self.x_pos, self.y_pos = coords
+        self.speed = 10
+        self.rect = self.image.get_rect()
+        self.rect.center = (self.x_pos, self.y_pos)
 
     def update(self):
-
-        new_x = self.x + self.speed * self.x_direction
-        new_y = self.y + self.speed * self.y_direction
-
-        if new_x > WIN_WIDTH - self.width or new_x < WIN_WIDTH / 2:
-            self.x_direction = self.x_direction * -1
-
-        if new_y > WIN_HEIGHT - self.height or new_y < 0:
-            self.y_direction = self.y_direction * -1
-
-        self.x += self.speed * self.x_direction
-        self.y += self.speed * self.y_direction
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        return
-
-    def draw(self):
-        WIN.blit(self.image, (self.x, self.y))
-        return
+        self.x_pos += self.speed
+        self.rect.center = (self.x_pos, self.y_pos)
 
 
-class Shot:
-    def __init__(self, shot_type, starting_coords):
-        self.shot_type = shot_type
-        self.shot_dict = {
-            'player': {
-                'height': 10,
-                'width': 50,
-                'image': SHOT_IMAGES['green'],
-                'speed': 10},
-            'enemy': {
-                'height': 10,
-                'width': 50,
-                'image': SHOT_IMAGES['red'],
-                'speed': -10},
-            'boss cannon': {
-                'height': 20,
-                'width': 100,
-                'image': SHOT_IMAGES['boss cannon'],
-                'speed': -15
-            }
-        }
-        self.height = self.shot_dict[self.shot_type]['height']
-        self.width = self.shot_dict[self.shot_type]['width']
-        self.x, self.y = starting_coords
-        self.speed = self.shot_dict[self.shot_type]['speed']
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.image = pygame.transform.scale(self.shot_dict[self.shot_type]['image'], (self.width, self.height))
+# class EnemyShip: # todo break out enemy ships into individual classes and move to a separate file
+#     def __init__(self, ship_type):
+#
+#         # self.ship_type = ship_type
+#         # self.ship_dict = {
+#         #     1: {
+#         #         'height': 275 // 5,
+#         #         'width': 100},
+#         #     2: {
+#         #         'height': 299 // 5,
+#         #         'width': 100},
+#         #     3: {
+#         #         'height': 419 // 5,
+#         #         'width': 100},
+#         #     4: {
+#         #         'height': 126 // 5,
+#         #         'width': 100},
+#         #     5: {
+#         #         'height': 341 // 5,
+#         #         'width': 100},
+#         #     6: {
+#         #         'height': 487 // 1.3,
+#         #         'width': 750 // 1.3
+#         #     }}
+#         # self.height = self.ship_dict[self.ship_type]['height']
+#         # self.width = self.ship_dict[self.ship_type]['width']
+#         # self.x = random.randint(WIN_WIDTH // 2, WIN_WIDTH - self.width)
+#         # self.y = random.randint(0, WIN_HEIGHT - self.height)
+#         # self.speed = 3
+#         # self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+#         # self.image = pygame.transform.scale(ENEMY_SHIP_IMAGES[self.ship_type], (self.width, self.height))
+#         # self.x_direction = random.choice([1, -1])
+#         # self.y_direction = random.choice([1, -1])
+#
+#     # todo implement random shooting?
+#     # def shoot(self, shots_on_screen):
+#     #     if len(shots_on_screen) < self.max_shots:
+#     #         self.gun_positions = {
+#     #             -1: (self.x + self.width, self.y + self.height * 0.33),
+#     #             1: (self.x + self.width, self.y + self.height * 0.66)}
+#     #         shot = Shot('player', self.gun_positions[self.shot_toggle])
+#     #         self.shot_toggle = self.shot_toggle * -1
+#     #         return shot
+#     #     return None
+#
+#     def update(self):
+#
+#         new_x = self.x + self.speed * self.x_direction
+#         new_y = self.y + self.speed * self.y_direction
+#
+#         if new_x > WIN_WIDTH - self.width or new_x < WIN_WIDTH / 2:
+#             self.x_direction = self.x_direction * -1
+#
+#         if new_y > WIN_HEIGHT - self.height or new_y < 0:
+#             self.y_direction = self.y_direction * -1
+#
+#         self.x += self.speed * self.x_direction
+#         self.y += self.speed * self.y_direction
+#         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+#         return
+#
+#     def draw(self):
+#         WIN.blit(self.image, (self.x, self.y))
+#         return
 
-    def update(self):
-        self.x += self.speed
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
-    def draw(self):
-        WIN.blit(self.image, (self.x, self.y))
+
 
 
 class MainApp:
@@ -197,18 +173,19 @@ class MainApp:
         self.level = 0
         self.game_phase = 0
         self.change_game_phase = [1, 5]
+        self.ships_on_screen = pygame.sprite.Group()
         self.player = PlayerShip()
-        self.ships_on_screen = []
-        self.player_shots_on_screen = []
-        self.enemy_shots_on_screen = []
-        self.level_spawns = {
-            0: [(0, 0)],
-            1: [(1, 1), (2, 1)],
-            2: [(2, 3)],
-            3: [(3, 1), (4, 1)],
-            4: [(4, 1), (1, 5)],
-            5: [(6, 1)]
-        }
+        self.player.add(self.ships_on_screen)
+        self.player_shots_on_screen = pygame.sprite.Group()
+        self.enemy_shots_on_screen = pygame.sprite.Group()
+        # self.level_spawns = {
+        #     0: [(0, 0)],
+        #     1: [(1, 1), (2, 1)],
+        #     2: [(2, 3)],
+        #     3: [(3, 1), (4, 1)],
+        #     4: [(4, 1), (1, 5)],
+        #     5: [(6, 1)]
+        # }
 
     def check_events(self):
         event_dict = {
@@ -217,17 +194,18 @@ class MainApp:
         }
 
         for event in pygame.event.get():
+
             if event.type in event_dict:
                 event_dict[event.type]()
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     self.event_next_level()
                     if self.level == 1:
                         self.game_phase = 1
                 if event.key == pygame.K_SPACE:
-                    shot = self.player.shoot(self.player_shots_on_screen)
-                    if shot is not None:
-                        self.player_shots_on_screen.append(shot)
+                    self.player.shoot(self.player_shots_on_screen)
+
         return
 
     def event_quit(self):
@@ -250,53 +228,56 @@ class MainApp:
             self.spawn_enemies(spawn)
         return
 
-    def spawn_enemies(self, spawn_data):
-        ship_type, number = spawn_data
-        for i in range(0, number):
-            ship = EnemyShip(ship_type)
-            self.ships_on_screen.append(ship)
+    # def spawn_enemies(self, spawn_data):
+    #     ship_type, number = spawn_data
+    #     for i in range(0, number):
+    #         ship = EnemyShip(ship_type)
+    #         self.ships_on_screen.add(ship)
 
-    def update_shots(self):
-        for shot in self.player_shots_on_screen:
-            shot.update()
-            if shot.x > WIN_WIDTH - shot.width:
-                self.player_shots_on_screen.remove(shot)
-        for shot in self.enemy_shots_on_screen:
-            shot.update()
-            if shot.x < 0:
-                self.enemy_shots_on_screen.remove(shot)
-        return
+    # def update(self):
+    #     keys_pressed = pygame.key.get_pressed()
+    #     self.player.update(keys_pressed)
+    #
+    #     for shot in self.player_shots_on_screen:
+    #         shot.update()
+    #         if shot.x > WIN_WIDTH - shot.width:
+    #             self.player_shots_on_screen.remove(shot)
+    #
+    #     for ship in self.ships_on_screen:
+    #         ship.update()
+    #
+    #     for shot in self.enemy_shots_on_screen:
+    #         shot.update()
+    #         if shot.x < 0:
+    #             self.enemy_shots_on_screen.remove(shot)
+    #     return
 
-    def update_enemy_ships(self):
-        for ship in self.ships_on_screen:
-            ship.update()
-        return
-
-    def draw(self, keys_pressed):
-        self.win.blit(BG_IMAGES[self.game_phase], (0, 0))
-        if self.level > 0:
-            self.player.update(keys_pressed)
-            self.player.draw()
-            self.update_shots()
-            self.update_enemy_ships()
-            for ship in self.ships_on_screen:
-                ship.draw()
-            for shot in self.player_shots_on_screen:
-                shot.draw()
-            for shot in self.enemy_shots_on_screen:
-                shot.draw()
-        pygame.display.update()
-        return
+    # def draw(self):
+    #     self.win.blit(BG_IMAGES[self.game_phase], (0, 0))
+    #     if self.level > 0:
+    #         self.player.draw()
+    #         for ship in self.ships_on_screen:
+    #             ship.draw()
+    #         for shot in self.player_shots_on_screen:
+    #             shot.draw()
+    #         for shot in self.enemy_shots_on_screen:
+    #             shot.draw()
+    #     pygame.display.update()
+    #     return
 
     def main(self):
+
         if MUSIC:
             pygame.mixer.music.load(MUSIC_FILES[self.level])
             pygame.mixer.music.play(-1, 0.0)
         while self.run:
+            keys_pressed = pygame.key.get_pressed()
             self.clock.tick(FPS)
             self.check_events()
-            keys_pressed = pygame.key.get_pressed()
-            self.draw(keys_pressed)
+            self.win.blit(BG_IMAGES[0], (0, 0))
+            self.ships_on_screen.update(keys_pressed)
+            self.ships_on_screen.draw(self.win)
+            pygame.display.update()
         return
 
 
