@@ -1,6 +1,5 @@
 import pygame
 import os
-import random
 pygame.init()
 
 # GAME WINDOW -----------------------------------------------------------------------------------
@@ -82,9 +81,9 @@ PHASE_1_MUSIC = os.path.join('Music', 'level_2_music.mp3')
 PHASE_2_MUSIC = os.path.join('Music', 'boss_music.mp3')
 
 MUSIC_FILE_DICT = {
-    0: pygame.mixer.music.load(PHASE_0_MUSIC),
-    1: pygame.mixer.music.load(PHASE_1_MUSIC),
-    2: pygame.mixer.music.load(PHASE_2_MUSIC)
+    0: PHASE_0_MUSIC,
+    1: PHASE_1_MUSIC,
+    2: PHASE_2_MUSIC
 }
 
 # SOUND EFFECTS --------------------------------------------------------------------------------------
@@ -124,11 +123,11 @@ class PlayerShip(pygame.sprite.Sprite):
 
 
 # PROJECTILE CLASS ----------------------------------------------------------------------------------------------------
-class Projectile:
-    def __init__(self, image, coords):
-        super.__init__()
+class Projectile(pygame.sprite.Sprite):
+    def __init__(self, image, position):
+        super().__init__()
         self.image = image
-        self.x_pos, self.y_pos = coords
+        self.x_pos, self.y_pos = position
         self.speed = 10
         self.rect = self.image.get_rect()
         self.rect.center = (self.x_pos, self.y_pos)
@@ -257,7 +256,7 @@ class MainApp:
     def event_next_game_phase(self):
         self.game_phase += 1
         if MUSIC:
-            MUSIC_FILE_DICT[self.game_phase]
+            pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
             pygame.mixer.music.play(-1, 0.0)
 
     def event_next_level(self):
@@ -277,6 +276,8 @@ class MainApp:
             self.win.blit(PHASE_BG_DICT[self.game_phase], (0, 0))
             self.ships_on_screen.update(keys_pressed)
             self.ships_on_screen.draw(self.win)
+            self.player_shots_on_screen.update()
+            self.player_shots_on_screen.draw(self.win)
             pygame.display.flip()
 
 
