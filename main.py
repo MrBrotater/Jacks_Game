@@ -4,17 +4,16 @@ import random
 pygame.init()
 
 # GAME WINDOW -----------------------------------------------------------------------------------
-WIN_WIDTH, WIN_HEIGHT = 1500, 800
-WIN = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+SCREEN_WIDTH, SCREEN_HEIGHT = 1500, 800
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption('Hyper Turbo Space')
 FPS = 60
-MUSIC = True
+MUSIC_ON = True
 
 # USER EVENTS -------------------------------------------------------------------------------------
 NEXT_GAME_PHASE = pygame.USEREVENT + 1
 NEXT_LEVEL = pygame.USEREVENT + 2
 PLAYER_SHOT = pygame.USEREVENT + 3
-START_GAME = pygame.USEREVENT + 4
 
 # IMAGE SCALING -----------------------------------------------------------------------------------
 PLAYER_SHIP_TGT_WIDTH = 150
@@ -30,7 +29,7 @@ PROJ_STD_SCALE_FACTOR = 200 / PROJ_STD_TGT_WIDTH
 PROJ_BOSS_SCALE_FACTOR = 250 / PROJ_BOSS_TGT_WIDTH
 
 IMAGE_SIZES = {
-    'background': (WIN_WIDTH, WIN_HEIGHT),
+    'background': (SCREEN_WIDTH, SCREEN_HEIGHT),
     'player ship': (500 // PLAYER_SHIP_SCALE_FACTOR, 518 // PLAYER_SHIP_SCALE_FACTOR),
     'enemy ship 1': (500 // ENEMY_SHIP_SCALE_FACTOR, 275 // ENEMY_SHIP_SCALE_FACTOR),
     'enemy ship 2': (500 // ENEMY_SHIP_SCALE_FACTOR, 299 // ENEMY_SHIP_SCALE_FACTOR),
@@ -96,7 +95,10 @@ MUSIC_FILE_DICT = {
 }
 
 # SOUND EFFECTS --------------------------------------------------------------------------------------
-PLAYER_SHOT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'laser.wav'))
+PLAYER_LASER_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'player_laser.wav'))
+BOSS_CANNON_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'boss_cannon.wav'))
+ENEMY_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'enemy_hit.wav'))
+PLAYER_SHIP_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'player_ship_hit.wav'))
 
 
 # PLAYER SHIP CLASS --------------------------------------------------------------------------------------------------
@@ -105,7 +107,7 @@ class PlayerShip(pygame.sprite.Sprite):
         super().__init__()
         self.image = PLAYER_SHIP_IMAGE
         self.rect = self.image.get_rect()
-        self.x_pos, self.y_pos = self.image.get_width() // 2, WIN_HEIGHT / 2
+        self.x_pos, self.y_pos = self.image.get_width() // 2, SCREEN_HEIGHT / 2
         self.rect.center = (self.x_pos, self.y_pos)
         self.speed = 10
         self.max_shots = 6
@@ -114,18 +116,18 @@ class PlayerShip(pygame.sprite.Sprite):
         if len(sprite_group.sprites()) < self.max_shots:
             proj = Projectile(PROJ_GREEN_IMAGE, self.rect.midright, 1)
             sprite_group.add(proj)
-            pygame.mixer.Sound.play(PLAYER_SHOT_SOUND)
+            pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
         return
 
     def update(self):
         keys_pressed = pygame.key.get_pressed()
         if keys_pressed[pygame.K_LEFT] and self.x_pos - self.speed > 0:  # LEFT
             self.x_pos -= self.speed
-        if keys_pressed[pygame.K_RIGHT] and self.x_pos + self.speed + self.image.get_width() < WIN_WIDTH:  # RIGHT
+        if keys_pressed[pygame.K_RIGHT] and self.x_pos + self.speed + self.image.get_width() < SCREEN_WIDTH:  # RIGHT
             self.x_pos += self.speed
         if keys_pressed[pygame.K_UP] and self.y_pos - self.speed > 0:  # UP
             self.y_pos -= self.speed
-        if keys_pressed[pygame.K_DOWN] and self.y_pos + self.speed + self.image.get_height() < WIN_HEIGHT:  # DOWN
+        if keys_pressed[pygame.K_DOWN] and self.y_pos + self.speed + self.image.get_height() < SCREEN_HEIGHT:  # DOWN
             self.y_pos += self.speed
         self.rect.center = (self.x_pos, self.y_pos)
 
@@ -144,7 +146,7 @@ class Projectile(pygame.sprite.Sprite):
     def update(self):
         self.x_pos += self.speed * self.direction
         self.rect.center = (self.x_pos, self.y_pos)
-        if self.direction == 1 and self.rect.left > WIN_WIDTH:
+        if self.direction == 1 and self.rect.left > SCREEN_WIDTH:
             self.kill()
         if self.direction == -1 and self.rect.right < 0:
             self.kill()
@@ -157,20 +159,20 @@ class EnemyShip(pygame.sprite.Sprite):
         self.image = ENEMY_SHIP_IMG_DICT[ship_type]
         self.rect = self.image.get_rect()
         self.x_pos = random.randint(
-            WIN_WIDTH // 2 + self.image.get_width() // 2,
-            WIN_WIDTH - self.image.get_width() // 2)
-        self.y_pos = random.randint(self.image.get_height() // 2, WIN_HEIGHT - self.image.get_height() // 2)
+            SCREEN_WIDTH // 2 + self.image.get_width() // 2,
+            SCREEN_WIDTH - self.image.get_width() // 2)
+        self.y_pos = random.randint(self.image.get_height() // 2, SCREEN_HEIGHT - self.image.get_height() // 2)
         self.rect.center = (self.x_pos, self.y_pos)
         self.speed = 3
         self.x_direction = random.choice([1, -1])
         self.y_direction = random.choice([1, -1])
 
     def update(self):
-        if self.x_direction == 1 and self.rect.right + self.speed > WIN_WIDTH:
+        if self.x_direction == 1 and self.rect.right + self.speed > SCREEN_WIDTH:
             self.x_direction = self.x_direction * -1
-        if self.x_direction == -1 and self.rect.left - self.speed < WIN_WIDTH // 2:
+        if self.x_direction == -1 and self.rect.left - self.speed < SCREEN_WIDTH // 2:
             self.x_direction = self.x_direction * -1
-        if self.y_direction == 1 and self.rect.bottom + self.speed > WIN_HEIGHT:
+        if self.y_direction == 1 and self.rect.bottom + self.speed > SCREEN_HEIGHT:
             self.y_direction = self.y_direction * -1
         if self.y_direction == -1 and self.rect.top - self.speed < 0:
             self.y_direction = self.y_direction * -1
@@ -189,9 +191,9 @@ class BossShip(pygame.sprite.Sprite):
         self.image = BOSS_SHIP_IMAGE
         self.rect = self.image.get_rect()
         self.x_pos = random.randint(
-            WIN_WIDTH // 2 + self.image.get_width() // 2,
-            WIN_WIDTH - self.image.get_width() // 2)
-        self.y_pos = random.randint(self.image.get_height() // 2, WIN_HEIGHT - self.image.get_height() // 2)
+            SCREEN_WIDTH // 2 + self.image.get_width() // 2,
+            SCREEN_WIDTH - self.image.get_width() // 2)
+        self.y_pos = random.randint(self.image.get_height() // 2, SCREEN_HEIGHT - self.image.get_height() // 2)
         self.rect.center = (self.x_pos, self.y_pos)
         self.speed = 3
         self.x_direction = random.choice([1, -1])
@@ -200,11 +202,11 @@ class BossShip(pygame.sprite.Sprite):
                                        self.rect.width // 2, self.rect.height // 2)
 
     def update(self):
-        if self.x_direction == 1 and self.rect.right + self.speed > WIN_WIDTH:
+        if self.x_direction == 1 and self.rect.right + self.speed > SCREEN_WIDTH:
             self.x_direction = self.x_direction * -1
-        if self.x_direction == -1 and self.rect.left - self.speed < WIN_WIDTH // 2:
+        if self.x_direction == -1 and self.rect.left - self.speed < SCREEN_WIDTH // 2:
             self.x_direction = self.x_direction * -1
-        if self.y_direction == 1 and self.rect.bottom + self.speed > WIN_HEIGHT:
+        if self.y_direction == 1 and self.rect.bottom + self.speed > SCREEN_HEIGHT:
             self.y_direction = self.y_direction * -1
         if self.y_direction == -1 and self.rect.top - self.speed < 0:
             self.y_direction = self.y_direction * -1
@@ -270,7 +272,7 @@ class MainApp:
         self.game_phase += 1
         if self.game_phase in self.change_game_phase:
             self.BG = PHASE_BG_DICT[self.game_phase]
-        if MUSIC:
+        if MUSIC_ON:
             pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
             pygame.mixer.music.play(-1, 0.0)
 
@@ -332,7 +334,7 @@ class MainApp:
 
 
 # RUNTIME CODE ---------------------------------------------------------------------------------------------------------
-game = MainApp(WIN)
+game = MainApp(SCREEN)
 
 if __name__ == '__main__':
     game.main()

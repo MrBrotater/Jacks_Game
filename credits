@@ -22,7 +22,7 @@ Level_1_Music.ogg                   https://opengameart.org/content/xeon-theme-r
 Level_2_Music.mp3                   https://opengameart.org/content/space-marines
 
 SOUNDS ----------------------------------------------------------------------------------------------------------------
-boss cannon.wav                     https://opengameart.org/content/space-battle-game-sounds-astromenace
-enemy hit.wav                       https://opengameart.org/content/space-battle-game-sounds-astromenace
-laser.wav                           https://opengameart.org/content/space-battle-game-sounds-astromenace
-our ship hit.wav                    https://opengameart.org/content/space-battle-game-sounds-astromenace
+boss_cannon.wav                     https://opengameart.org/content/space-battle-game-sounds-astromenace
+enemy_ship_hit.wav                       https://opengameart.org/content/space-battle-game-sounds-astromenace
+player_laser.wav                           https://opengameart.org/content/space-battle-game-sounds-astromenace
+player_ship_hit.wav                    https://opengameart.org/content/space-battle-game-sounds-astromenace
