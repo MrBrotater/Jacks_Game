@@ -182,7 +182,7 @@ class EnemyShip(pygame.sprite.Sprite):
         return
 
 
-# ENEMY SHIP CLASS -----------------------------------------------------------------------------------------------------
+# BOSS SHIP CLASS -----------------------------------------------------------------------------------------------------
 class BossShip(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
@@ -196,6 +196,8 @@ class BossShip(pygame.sprite.Sprite):
         self.speed = 3
         self.x_direction = random.choice([1, -1])
         self.y_direction = random.choice([1, -1])
+        self.hitbox = pygame.rect.Rect(self.rect.midtop[0], self.rect.midtop[1],
+                                       self.rect.width // 2, self.rect.height // 2)
 
     def update(self):
         if self.x_direction == 1 and self.rect.right + self.speed > WIN_WIDTH:
@@ -211,6 +213,7 @@ class BossShip(pygame.sprite.Sprite):
         self.y_pos += self.speed * self.y_direction
 
         self.rect.center = (self.x_pos, self.y_pos)
+        self.hitbox.topleft = self.rect.midtop
         return
 
 
@@ -308,15 +311,24 @@ class MainApp:
                 self.check_events()
                 self.win.blit(self.BG, (0, 0))
                 pygame.display.flip()
-
-            self.clock.tick(FPS)
-            self.check_events()
-            self.win.blit(self.BG, (0, 0))
-            self.ships_on_screen.update()
-            self.ships_on_screen.draw(self.win)
-            self.projectiles_on_screen.update()
-            self.projectiles_on_screen.draw(self.win)
-            pygame.display.flip()
+            while self.game_phase == 1:
+                self.clock.tick(FPS)
+                self.check_events()
+                self.win.blit(self.BG, (0, 0))
+                self.ships_on_screen.update()
+                self.ships_on_screen.draw(self.win)
+                self.projectiles_on_screen.update()
+                self.projectiles_on_screen.draw(self.win)
+                pygame.display.flip()
+            while self.game_phase == 2:
+                self.clock.tick(FPS)
+                self.check_events()
+                self.win.blit(self.BG, (0, 0))
+                self.ships_on_screen.update()
+                self.ships_on_screen.draw(self.win)
+                self.projectiles_on_screen.update()
+                self.projectiles_on_screen.draw(self.win)
+                pygame.display.flip()
 
 
 # RUNTIME CODE ---------------------------------------------------------------------------------------------------------
