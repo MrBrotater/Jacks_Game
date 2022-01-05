@@ -16,47 +16,88 @@ NEXT_LEVEL = pygame.USEREVENT + 2
 PLAYER_SHOT = pygame.USEREVENT + 3
 START_GAME = pygame.USEREVENT + 4
 
-# IMAGES ------------------------------------------------------------------------------------------
-BG_IMAGES = {
-    0: pygame.transform.scale(
-        pygame.image.load(os.path.join('Images', 'Title_screen.png')), (WIN_WIDTH, WIN_HEIGHT)),
-    1: pygame.transform.scale(
-        pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT)),
-    2: pygame.transform.scale(
-        pygame.image.load(os.path.join('Images', 'Space_background.png')), (WIN_WIDTH, WIN_HEIGHT))}
-PLAYER_SHIP_IMG = pygame.transform.scale(pygame.image.load(
-    os.path.join('Images', 'Player_ship_500x518.png')), (150, 150))
-ENEMY_SHIP_IMAGES = {
-    1: pygame.image.load(os.path.join('Images', 'Enemy_ship_1_500x275.png')),
-    2: pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png')),
-    3: pygame.image.load(os.path.join('Images', 'Enemy_ship_3_500x419.png')),
-    4: pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png')),
-    5: pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png')),
-    6: pygame.image.load(os.path.join('Images', 'Boss_ship_750x487.png'))}
-GREEN_SHOT_IMAGE = pygame.transform.scale(
-    pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png')), (10, 10))
+# IMAGE SCALING -----------------------------------------------------------------------------------
+PLAYER_SHIP_TGT_WIDTH = 150
+ENEMY_SHIP_TGT_WIDTH = 100
+BOSS_SHIP_TGT_WIDTH = 500
+PROJ_STD_TGT_WIDTH = 15
+PROJ_BOSS_TGT_WIDTH = 30
 
-SHOT_IMAGES = {
-    'red': pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png')),
-    'boss cannon': pygame.image.load(os.path.join('Images', 'Boss_cannon_laser_250x33.png'))}
+PLAYER_SHIP_SCALE_FACTOR = 500 / PLAYER_SHIP_TGT_WIDTH
+ENEMY_SHIP_SCALE_FACTOR = 500 / ENEMY_SHIP_TGT_WIDTH
+BOSS_SHIP_SCALE_FACTOR = 750 / BOSS_SHIP_TGT_WIDTH
+PROJ_STD_SCALE_FACTOR = 200 / PROJ_STD_TGT_WIDTH
+PROJ_BOSS_SCALE_FACTOR = 250 / PROJ_BOSS_TGT_WIDTH
+
+IMAGE_SIZES = {
+    'background': (WIN_WIDTH, WIN_HEIGHT),
+    'player ship': (500 // PLAYER_SHIP_SCALE_FACTOR, 518 // PLAYER_SHIP_SCALE_FACTOR),
+    'enemy ship 1': (500 // ENEMY_SHIP_SCALE_FACTOR, 275 // ENEMY_SHIP_SCALE_FACTOR),
+    'enemy ship 2': (500 // ENEMY_SHIP_SCALE_FACTOR, 299 // ENEMY_SHIP_SCALE_FACTOR),
+    'enemy ship 3': (500 // ENEMY_SHIP_SCALE_FACTOR, 419 // ENEMY_SHIP_SCALE_FACTOR),
+    'enemy ship 4': (500 // ENEMY_SHIP_SCALE_FACTOR, 126 // ENEMY_SHIP_SCALE_FACTOR),
+    'enemy ship 5': (500 // ENEMY_SHIP_SCALE_FACTOR, 341 // ENEMY_SHIP_SCALE_FACTOR),
+    'boss ship': (750 // BOSS_SHIP_SCALE_FACTOR, 487 // BOSS_SHIP_SCALE_FACTOR),
+    'green laser': (200 // PROJ_STD_SCALE_FACTOR, 38 // PROJ_STD_SCALE_FACTOR),
+    'red laser': (200 // PROJ_STD_SCALE_FACTOR, 37 // PROJ_STD_SCALE_FACTOR),
+    'boss laser': (250 // PROJ_BOSS_SCALE_FACTOR, 33 // PROJ_BOSS_SCALE_FACTOR)
+}
+
+# IMAGES ------------------------------------------------------------------------------------------
+BG_TITLE_PATH = pygame.image.load(os.path.join('Images', 'Title_screen.png'))
+BG_SPACE_PATH = pygame.image.load(os.path.join('Images', 'Space_background.png'))
+PLAYER_SHIP_PATH = pygame.image.load(os.path.join('Images', 'Player_ship_500x518.png'))
+ENEMY_SHIP_1_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_1_500x275.png'))
+ENEMY_SHIP_2_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png'))
+ENEMY_SHIP_3_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_3_500x419.png'))
+ENEMY_SHIP_4_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png'))
+ENEMY_SHIP_5_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png'))
+BOSS_SHIP_PATH = pygame.image.load(os.path.join('Images', 'Boss_ship_750x487.png'))
+PROJ_GREEN_PATH = pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png'))
+PROJ_RED_PATH = pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png'))
+PROJ_BOSS_PATH = pygame.image.load(os.path.join('Images', 'Boss_cannon_laser_250x33.png'))
+
+BG_TITLE_IMAGE = pygame.transform.scale(BG_TITLE_PATH, IMAGE_SIZES['background'])
+BG_SPACE_IMAGE = pygame.transform.scale(BG_SPACE_PATH, IMAGE_SIZES['background'])
+PLAYER_SHIP_IMAGE = pygame.transform.scale(PLAYER_SHIP_PATH, IMAGE_SIZES['player ship'])
+ENEMY_SHIP_1_IMAGE = pygame.transform.scale(ENEMY_SHIP_1_PATH, IMAGE_SIZES['enemy ship 1'])
+ENEMY_SHIP_2_IMAGE = pygame.transform.scale(ENEMY_SHIP_2_PATH, IMAGE_SIZES['enemy ship 2'])
+ENEMY_SHIP_3_IMAGE = pygame.transform.scale(ENEMY_SHIP_3_PATH, IMAGE_SIZES['enemy ship 3'])
+ENEMY_SHIP_4_IMAGE = pygame.transform.scale(ENEMY_SHIP_4_PATH, IMAGE_SIZES['enemy ship 4'])
+ENEMY_SHIP_5_IMAGE = pygame.transform.scale(ENEMY_SHIP_5_PATH, IMAGE_SIZES['enemy ship 5'])
+BOSS_SHIP_IMAGE = pygame.transform.scale(BOSS_SHIP_PATH, IMAGE_SIZES['boss ship'])
+PROJ_GREEN_IMAGE = pygame.transform.scale(PROJ_GREEN_PATH, IMAGE_SIZES['green laser'])
+PROJ_RED_IMAGE = pygame.transform.scale(PROJ_RED_PATH, IMAGE_SIZES['red laser'])
+PROJ_BOSS_IMAGE = pygame.transform.scale(PROJ_BOSS_PATH, IMAGE_SIZES['boss laser'])
+
+PHASE_BG_DICT = {
+    0: BG_TITLE_IMAGE,
+    1: BG_SPACE_IMAGE,
+    2: BG_SPACE_IMAGE
+}
 
 # MUSIC -------------------------------------------------------------------------------------------
-MUSIC_FILES = {
-    0: os.path.join('Music', 'level_1_music.ogg'),
-    1: os.path.join('Music', 'level_2_music.mp3'),
-    2: os.path.join('Music', 'boss_music.mp3')
+PHASE_0_MUSIC = os.path.join('Music', 'level_1_music.ogg')
+PHASE_1_MUSIC = os.path.join('Music', 'level_2_music.mp3')
+PHASE_2_MUSIC = os.path.join('Music', 'boss_music.mp3')
+
+MUSIC_FILE_DICT = {
+    0: pygame.mixer.music.load(PHASE_0_MUSIC),
+    1: pygame.mixer.music.load(PHASE_1_MUSIC),
+    2: pygame.mixer.music.load(PHASE_2_MUSIC)
 }
 
 # SOUND EFFECTS --------------------------------------------------------------------------------------
 PLAYER_SHOT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'laser.wav'))
 
 
+# PLAYER SHIP CLASS --------------------------------------------------------------------------------------------------
 class PlayerShip(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         self.height = 150
         self.width = 150
-        self.image = PLAYER_SHIP_IMG
+        self.image = PLAYER_SHIP_IMAGE
         self.rect = self.image.get_rect()
         self.x_pos, self.y_pos = self.image.get_width() // 2, WIN_HEIGHT / 2
         self.rect.center = (self.x_pos, self.y_pos)
@@ -65,7 +106,8 @@ class PlayerShip(pygame.sprite.Sprite):
 
     def shoot(self, sprite_group):
         if len(sprite_group.sprites()) < self.max_shots:
-            sprite_group.add(GREEN_SHOT_IMAGE, self.rect.midright)
+            proj = Projectile(PROJ_GREEN_IMAGE, self.rect.midright)
+            sprite_group.add(proj)
             pygame.mixer.Sound.play(PLAYER_SHOT_SOUND)
         return
 
@@ -81,7 +123,7 @@ class PlayerShip(pygame.sprite.Sprite):
         self.rect.center = (self.x_pos, self.y_pos)
 
 
-
+# PROJECTILE CLASS ----------------------------------------------------------------------------------------------------
 class Projectile:
     def __init__(self, image, coords):
         super.__init__()
@@ -96,6 +138,7 @@ class Projectile:
         self.rect.center = (self.x_pos, self.y_pos)
 
 
+# ENEMY SHIP CLASS ----------------------------------------------------------------------------------------------------
 # class EnemyShip: # todo break out enemy ships into individual classes and move to a separate file
 #     def __init__(self, ship_type):
 #
@@ -162,9 +205,7 @@ class Projectile:
 #         return
 
 
-
-
-
+# MAIN APP CLASS ------------------------------------------------------------------------------------------------------
 class MainApp:
     def __init__(self, window):
         self.clock = pygame.time.Clock()
@@ -216,71 +257,30 @@ class MainApp:
     def event_next_game_phase(self):
         self.game_phase += 1
         if MUSIC:
-            pygame.mixer.music.load(MUSIC_FILES[self.game_phase])
+            MUSIC_FILE_DICT[self.game_phase]
             pygame.mixer.music.play(-1, 0.0)
 
     def event_next_level(self):
         self.level += 1
         if self.level in self.change_game_phase:
             self.event_next_game_phase()
-        enemies_to_spawn = self.level_spawns[self.level]
-        for spawn in enemies_to_spawn:
-            self.spawn_enemies(spawn)
+        # enemies_to_spawn = self.level_spawns[self.level]
+        # for spawn in enemies_to_spawn:
+        #     self.spawn_enemies(spawn)
         return
 
-    # def spawn_enemies(self, spawn_data):
-    #     ship_type, number = spawn_data
-    #     for i in range(0, number):
-    #         ship = EnemyShip(ship_type)
-    #         self.ships_on_screen.add(ship)
-
-    # def update(self):
-    #     keys_pressed = pygame.key.get_pressed()
-    #     self.player.update(keys_pressed)
-    #
-    #     for shot in self.player_shots_on_screen:
-    #         shot.update()
-    #         if shot.x > WIN_WIDTH - shot.width:
-    #             self.player_shots_on_screen.remove(shot)
-    #
-    #     for ship in self.ships_on_screen:
-    #         ship.update()
-    #
-    #     for shot in self.enemy_shots_on_screen:
-    #         shot.update()
-    #         if shot.x < 0:
-    #             self.enemy_shots_on_screen.remove(shot)
-    #     return
-
-    # def draw(self):
-    #     self.win.blit(BG_IMAGES[self.game_phase], (0, 0))
-    #     if self.level > 0:
-    #         self.player.draw()
-    #         for ship in self.ships_on_screen:
-    #             ship.draw()
-    #         for shot in self.player_shots_on_screen:
-    #             shot.draw()
-    #         for shot in self.enemy_shots_on_screen:
-    #             shot.draw()
-    #     pygame.display.update()
-    #     return
-
     def main(self):
-
-        if MUSIC:
-            pygame.mixer.music.load(MUSIC_FILES[self.level])
-            pygame.mixer.music.play(-1, 0.0)
         while self.run:
             keys_pressed = pygame.key.get_pressed()
             self.clock.tick(FPS)
             self.check_events()
-            self.win.blit(BG_IMAGES[0], (0, 0))
+            self.win.blit(PHASE_BG_DICT[self.game_phase], (0, 0))
             self.ships_on_screen.update(keys_pressed)
             self.ships_on_screen.draw(self.win)
-            pygame.display.update()
-        return
+            pygame.display.flip()
 
 
+# RUNTIME CODE ---------------------------------------------------------------------------------------------------------
 game = MainApp(WIN)
 
 if __name__ == '__main__':
