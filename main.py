@@ -198,8 +198,8 @@ class BossShip(pygame.sprite.Sprite):
         self.speed = 3
         self.x_direction = random.choice([1, -1])
         self.y_direction = random.choice([1, -1])
-        self.hitbox = pygame.rect.Rect(self.rect.midtop[0], self.rect.midtop[1],
-                                       self.rect.width // 2, self.rect.height // 2)
+        self.hit_box = (self.rect.right - self.rect.width * 0.25, self.rect.top,
+                        self.rect.width * 0.25, self.rect.height * 0.25)
 
     def update(self):
         if self.x_direction == 1 and self.rect.right + self.speed > SCREEN_WIDTH:
@@ -215,7 +215,8 @@ class BossShip(pygame.sprite.Sprite):
         self.y_pos += self.speed * self.y_direction
 
         self.rect.center = (self.x_pos, self.y_pos)
-        self.hitbox.topleft = self.rect.midtop
+        self.hit_box = (self.rect.right - self.rect.width * 0.25, self.rect.top,
+                        self.rect.width * 0.25, self.rect.height * 0.25)
         return
 
 
