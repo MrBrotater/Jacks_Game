@@ -89,8 +89,8 @@ EXPLOSION_FRAMES_FULLSIZE = [pygame.image.load(os.path.join('Images', 'explosion
 EXPLOSION_FRAMES = [pygame.transform.scale(image, (100, 100)) for image in EXPLOSION_FRAMES_FULLSIZE]
 
 # MUSIC -------------------------------------------------------------------------------------------
-PHASE_0_MUSIC = os.path.join('Music', 'level_1_music.ogg')
-PHASE_1_MUSIC = os.path.join('Music', 'level_2_music.mp3')
+PHASE_0_MUSIC = os.path.join('Music', 'phase_0_music.ogg')
+PHASE_1_MUSIC = os.path.join('Music', 'phase_1_music.mp3')
 PHASE_2_MUSIC = os.path.join('Music', 'boss_music.mp3')
 
 MUSIC_FILE_DICT = {
@@ -126,13 +126,13 @@ class PlayerShip(pygame.sprite.Sprite):
 
     def update(self):
         keys_pressed = pygame.key.get_pressed()
-        if keys_pressed[pygame.K_LEFT] and self.x_pos - self.speed > 0:  # LEFT
+        if keys_pressed[pygame.K_LEFT] and self.rect.left > 0:  # LEFT
             self.x_pos -= self.speed
-        if keys_pressed[pygame.K_RIGHT] and self.x_pos + self.speed + self.image.get_width() < SCREEN_WIDTH:  # RIGHT
+        if keys_pressed[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:  # RIGHT
             self.x_pos += self.speed
-        if keys_pressed[pygame.K_UP] and self.y_pos - self.speed > 0:  # UP
+        if keys_pressed[pygame.K_UP] and self.rect.top > 0:  # UP
             self.y_pos -= self.speed
-        if keys_pressed[pygame.K_DOWN] and self.y_pos + self.speed + self.image.get_height() < SCREEN_HEIGHT:  # DOWN
+        if keys_pressed[pygame.K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:  # DOWN
             self.y_pos += self.speed
         self.rect.center = (self.x_pos, self.y_pos)
 
@@ -156,8 +156,25 @@ class Projectile(pygame.sprite.Sprite):
         if self.direction == -1 and self.rect.right < 0:
             self.kill()
 
-    def collide(self):
-        self.kill()
+
+# EXPLOSION CLASS ------------------------------------------------------------------------------------------------------
+class Explosion(pygame.sprite.Sprite):
+    def __init__(self, ship_img, position):
+        super().__init__()
+        self.ship_iamge = ship_img
+        self.explosion_frames = EXPLOSION_FRAMES
+        self.total_frames = len(EXPLOSION_FRAMES)
+        self.current_frame = 0
+        self.image = EXPLOSION_FRAMES[self.current_frame]
+        self.rect = self.image.get_rect()
+        self.rect.center = position
+
+    def update(self):
+        self.current_frame += 1
+        if self.current_frame == self.total_frames:
+            self.kill()
+        else:
+            self.image = EXPLOSION_FRAMES[self.current_frame]
 
 
 # ENEMY SHIP CLASS -----------------------------------------------------------------------------------------------------
@@ -194,6 +211,8 @@ class EnemyShip(pygame.sprite.Sprite):
             self.y_pos += self.speed * self.y_direction
 
             self.rect.center = (self.x_pos, self.y_pos)
+        else:
+            self.kill()
         return
 
     def check_collision(self, projectiles):
@@ -201,18 +220,9 @@ class EnemyShip(pygame.sprite.Sprite):
             for projectile in projectiles:
                 if self.rect.colliderect(projectile.rect):
                     projectile.kill()
+                    explosion = Explosion(self.image, self.rect.center)
                     self.exploding = True
-
-    def draw(self, window):  # todo this is not working right
-        if not self.exploding:
-            window.blit(self.image, self.rect.topleft)
-        else:
-            if self.current_explosion_frame > self.total_explosion_frames:
-                self.kill()
-                return
-            window.blit(self.image, self.rect.topleft)
-            window.blit(self.explosion_frames[self.current_explosion_frame], self.rect.topleft)
-            self.current_explosion_frame += 1
+                    return explosion
 
 
 # BOSS SHIP CLASS -----------------------------------------------------------------------------------------------------
@@ -267,10 +277,12 @@ class MainApp:
         self.player_group.add(self.player)
         self.player_projectiles_on_screen = pygame.sprite.Group()
         self.enemy_projectiles_on_screen = pygame.sprite.Group()
+        self.explosions_on_screen = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group(
             self.player_group.sprites(),
             self.player_projectiles_on_screen.sprites(),
-            self.enemy_projectiles_on_screen.sprites())
+            self.enemy_projectiles_on_screen.sprites(),
+            self.explosions_on_screen.sprites())
         self.level_spawns = {
             0: [(0, 0)],
             1: [(1, 1), (2, 1)],
@@ -284,6 +296,7 @@ class MainApp:
         event_dict = {
             pygame.QUIT: self.event_quit,
             NEXT_GAME_PHASE: self.event_next_level,
+            NEXT_LEVEL: self.event_next_level
         }
 
         for event in pygame.event.get():
@@ -349,6 +362,9 @@ class MainApp:
 
     def main(self):
         while self.run:
+            if MUSIC_ON:
+                pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
+                pygame.mixer.music.play(-1, 0.0)
             while self.game_phase == 0:
                 self.clock.tick(FPS)
                 self.check_events()
@@ -360,9 +376,14 @@ class MainApp:
                 self.win.blit(self.BG, (0, 0))
                 self.all_sprites.update()
                 for ship in self.enemies_on_screen.sprites():
-                    ship.check_collision(self.player_projectiles_on_screen)
+                    explosion = ship.check_collision(self.player_projectiles_on_screen)
+                    if explosion is not None:
+                        self.explosions_on_screen.add(explosion)
+                        self.all_sprites.add(explosion)
                 self.all_sprites.draw(self.win)
                 pygame.display.flip()
+                if len(self.enemies_on_screen.sprites()) == 0:
+                    self.event_next_level()
             while self.game_phase == 2:
                 self.clock.tick(FPS)
                 self.check_events()

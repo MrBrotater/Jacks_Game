@@ -14,15 +14,15 @@ Red_laser_200x37.png                JACK
 Small_cloud_250x246.png             ME
 Space_background.png                https://wallpaperboat.com/blue-galaxy-wallpapers
 Title_screen.png                    JACK
-explosion/frames                    https://opengameart.org/content/2d-explosion-animations-frame-by-frame
+explosion/all frames                https://opengameart.org/content/2d-explosion-animations-frame-by-frame
 
 MUSIC -----------------------------------------------------------------------------------------------------------------
-Boss_Music.mp3                      https://opengameart.org/content/colossal-boss-battle-theme
-Level_1_Music.ogg                   https://opengameart.org/content/xeon-theme-remastered
-Level_2_Music.mp3                   https://opengameart.org/content/space-marines
+Boss_music.mp3                      https://opengameart.org/content/colossal-boss-battle-theme
+phase_0_music.ogg                   https://opengameart.org/content/xeon-theme-remastered
+phase_1_music.mp3                   https://opengameart.org/content/space-marines
 
 SOUNDS ----------------------------------------------------------------------------------------------------------------
 boss_cannon.wav                     https://opengameart.org/content/space-battle-game-sounds-astromenace
-enemy_ship_hit.wav                       https://opengameart.org/content/space-battle-game-sounds-astromenace
-player_laser.wav                           https://opengameart.org/content/space-battle-game-sounds-astromenace
-player_ship_hit.wav                    https://opengameart.org/content/space-battle-game-sounds-astromenace
+enemy_ship_hit.wav                  https://opengameart.org/content/space-battle-game-sounds-astromenace
+player_laser.wav                    https://opengameart.org/content/space-battle-game-sounds-astromenace
+player_ship_hit.wav                 https://opengameart.org/content/space-battle-game-sounds-astromenace
