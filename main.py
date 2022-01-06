@@ -42,32 +42,32 @@ IMAGE_SIZES = {
     'boss laser': (250 // PROJ_BOSS_SCALE_FACTOR, 33 // PROJ_BOSS_SCALE_FACTOR)
 }
 
-# IMAGES ------------------------------------------------------------------------------------------
-BG_TITLE_PATH = pygame.image.load(os.path.join('Images', 'Title_screen.png'))
-BG_SPACE_PATH = pygame.image.load(os.path.join('Images', 'Space_background.png'))
-PLAYER_SHIP_PATH = pygame.image.load(os.path.join('Images', 'Player_ship_500x518.png'))
-ENEMY_SHIP_1_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_1_500x275.png'))
-ENEMY_SHIP_2_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png'))
-ENEMY_SHIP_3_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_3_500x419.png'))
-ENEMY_SHIP_4_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png'))
-ENEMY_SHIP_5_PATH = pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png'))
-BOSS_SHIP_PATH = pygame.image.load(os.path.join('Images', 'Boss_ship_750x487.png'))
-PROJ_GREEN_PATH = pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png'))
-PROJ_RED_PATH = pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png'))
-PROJ_BOSS_PATH = pygame.image.load(os.path.join('Images', 'Boss_cannon_laser_250x33.png'))
+# STATIC IMAGES ------------------------------------------------------------------------------------------
+BG_TITLE_FULLSIZE = pygame.image.load(os.path.join('Images', 'Title_screen.png'))
+BG_SPACE_FULLSIZE = pygame.image.load(os.path.join('Images', 'Space_background.png'))
+PLAYER_SHIP_FULLSIZE = pygame.image.load(os.path.join('Images', 'Player_ship_500x518.png'))
+ENEMY_SHIP_1_FULLSIZE = pygame.image.load(os.path.join('Images', 'Enemy_ship_1_500x275.png'))
+ENEMY_SHIP_2_FULLSIZE = pygame.image.load(os.path.join('Images', 'Enemy_ship_2_500x299.png'))
+ENEMY_SHIP_3_FULLSIZE = pygame.image.load(os.path.join('Images', 'Enemy_ship_3_500x419.png'))
+ENEMY_SHIP_4_FULLSIZE = pygame.image.load(os.path.join('Images', 'Enemy_ship_4_500x126.png'))
+ENEMY_SHIP_5_FULLSIZE = pygame.image.load(os.path.join('Images', 'Enemy_ship_5_500x341.png'))
+BOSS_SHIP_FULLSIZE = pygame.image.load(os.path.join('Images', 'Boss_ship_750x487.png'))
+PROJ_GREEN_FULLSIZE = pygame.image.load(os.path.join('Images', 'Green_laser_200x38.png'))
+PROJ_RED_FULLSIZE = pygame.image.load(os.path.join('Images', 'Red_laser_200x37.png'))
+PROJ_BOSS_FULLSIZE = pygame.image.load(os.path.join('Images', 'Boss_cannon_laser_250x33.png'))
 
-BG_TITLE_IMAGE = pygame.transform.scale(BG_TITLE_PATH, IMAGE_SIZES['background'])
-BG_SPACE_IMAGE = pygame.transform.scale(BG_SPACE_PATH, IMAGE_SIZES['background'])
-PLAYER_SHIP_IMAGE = pygame.transform.scale(PLAYER_SHIP_PATH, IMAGE_SIZES['player ship'])
-ENEMY_SHIP_1_IMAGE = pygame.transform.scale(ENEMY_SHIP_1_PATH, IMAGE_SIZES['enemy ship 1'])
-ENEMY_SHIP_2_IMAGE = pygame.transform.scale(ENEMY_SHIP_2_PATH, IMAGE_SIZES['enemy ship 2'])
-ENEMY_SHIP_3_IMAGE = pygame.transform.scale(ENEMY_SHIP_3_PATH, IMAGE_SIZES['enemy ship 3'])
-ENEMY_SHIP_4_IMAGE = pygame.transform.scale(ENEMY_SHIP_4_PATH, IMAGE_SIZES['enemy ship 4'])
-ENEMY_SHIP_5_IMAGE = pygame.transform.scale(ENEMY_SHIP_5_PATH, IMAGE_SIZES['enemy ship 5'])
-BOSS_SHIP_IMAGE = pygame.transform.scale(BOSS_SHIP_PATH, IMAGE_SIZES['boss ship'])
-PROJ_GREEN_IMAGE = pygame.transform.scale(PROJ_GREEN_PATH, IMAGE_SIZES['green laser'])
-PROJ_RED_IMAGE = pygame.transform.scale(PROJ_RED_PATH, IMAGE_SIZES['red laser'])
-PROJ_BOSS_IMAGE = pygame.transform.scale(PROJ_BOSS_PATH, IMAGE_SIZES['boss laser'])
+BG_TITLE_IMAGE = pygame.transform.scale(BG_TITLE_FULLSIZE, IMAGE_SIZES['background'])
+BG_SPACE_IMAGE = pygame.transform.scale(BG_SPACE_FULLSIZE, IMAGE_SIZES['background'])
+PLAYER_SHIP_IMAGE = pygame.transform.scale(PLAYER_SHIP_FULLSIZE, IMAGE_SIZES['player ship'])
+ENEMY_SHIP_1_IMAGE = pygame.transform.scale(ENEMY_SHIP_1_FULLSIZE, IMAGE_SIZES['enemy ship 1'])
+ENEMY_SHIP_2_IMAGE = pygame.transform.scale(ENEMY_SHIP_2_FULLSIZE, IMAGE_SIZES['enemy ship 2'])
+ENEMY_SHIP_3_IMAGE = pygame.transform.scale(ENEMY_SHIP_3_FULLSIZE, IMAGE_SIZES['enemy ship 3'])
+ENEMY_SHIP_4_IMAGE = pygame.transform.scale(ENEMY_SHIP_4_FULLSIZE, IMAGE_SIZES['enemy ship 4'])
+ENEMY_SHIP_5_IMAGE = pygame.transform.scale(ENEMY_SHIP_5_FULLSIZE, IMAGE_SIZES['enemy ship 5'])
+BOSS_SHIP_IMAGE = pygame.transform.scale(BOSS_SHIP_FULLSIZE, IMAGE_SIZES['boss ship'])
+PROJ_GREEN_IMAGE = pygame.transform.scale(PROJ_GREEN_FULLSIZE, IMAGE_SIZES['green laser'])
+PROJ_RED_IMAGE = pygame.transform.scale(PROJ_RED_FULLSIZE, IMAGE_SIZES['red laser'])
+PROJ_BOSS_IMAGE = pygame.transform.scale(PROJ_BOSS_FULLSIZE, IMAGE_SIZES['boss laser'])
 
 ENEMY_SHIP_IMG_DICT = {
     1: ENEMY_SHIP_1_IMAGE,
@@ -82,6 +82,11 @@ PHASE_BG_DICT = {
     1: BG_SPACE_IMAGE,
     2: BG_SPACE_IMAGE
 }
+
+# ANIMATIONS --------------------------------------------------------------------------------------
+EXPLOSION_FILES = os.listdir(os.path.join('Images', 'explosion'))
+EXPLOSION_FRAMES_FULLSIZE = [pygame.image.load(os.path.join('Images', 'explosion', frame)) for frame in EXPLOSION_FILES]
+EXPLOSION_FRAMES = [pygame.transform.scale(image, (100, 100)) for image in EXPLOSION_FRAMES_FULLSIZE]
 
 # MUSIC -------------------------------------------------------------------------------------------
 PHASE_0_MUSIC = os.path.join('Music', 'level_1_music.ogg')
@@ -115,9 +120,9 @@ class PlayerShip(pygame.sprite.Sprite):
     def shoot(self, sprite_group):
         if len(sprite_group.sprites()) < self.max_shots:
             proj = Projectile(PROJ_GREEN_IMAGE, self.rect.midright, 1)
-            sprite_group.add(proj)
             pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
-        return
+            return proj
+        return None
 
     def update(self):
         keys_pressed = pygame.key.get_pressed()
@@ -151,6 +156,9 @@ class Projectile(pygame.sprite.Sprite):
         if self.direction == -1 and self.rect.right < 0:
             self.kill()
 
+    def collide(self):
+        self.kill()
+
 
 # ENEMY SHIP CLASS -----------------------------------------------------------------------------------------------------
 class EnemyShip(pygame.sprite.Sprite):
@@ -166,22 +174,45 @@ class EnemyShip(pygame.sprite.Sprite):
         self.speed = 3
         self.x_direction = random.choice([1, -1])
         self.y_direction = random.choice([1, -1])
+        self.current_explosion_frame = 0
+        self.explosion_frames = EXPLOSION_FRAMES
+        self.total_explosion_frames = len(self.explosion_frames)
+        self.exploding = False
 
     def update(self):
-        if self.x_direction == 1 and self.rect.right + self.speed > SCREEN_WIDTH:
-            self.x_direction = self.x_direction * -1
-        if self.x_direction == -1 and self.rect.left - self.speed < SCREEN_WIDTH // 2:
-            self.x_direction = self.x_direction * -1
-        if self.y_direction == 1 and self.rect.bottom + self.speed > SCREEN_HEIGHT:
-            self.y_direction = self.y_direction * -1
-        if self.y_direction == -1 and self.rect.top - self.speed < 0:
-            self.y_direction = self.y_direction * -1
+        if not self.exploding:
+            if self.x_direction == 1 and self.rect.right + self.speed > SCREEN_WIDTH:
+                self.x_direction = self.x_direction * -1
+            if self.x_direction == -1 and self.rect.left - self.speed < SCREEN_WIDTH // 2:
+                self.x_direction = self.x_direction * -1
+            if self.y_direction == 1 and self.rect.bottom + self.speed > SCREEN_HEIGHT:
+                self.y_direction = self.y_direction * -1
+            if self.y_direction == -1 and self.rect.top - self.speed < 0:
+                self.y_direction = self.y_direction * -1
 
-        self.x_pos += self.speed * self.x_direction
-        self.y_pos += self.speed * self.y_direction
+            self.x_pos += self.speed * self.x_direction
+            self.y_pos += self.speed * self.y_direction
 
-        self.rect.center = (self.x_pos, self.y_pos)
+            self.rect.center = (self.x_pos, self.y_pos)
         return
+
+    def check_collision(self, projectiles):
+        if not self.exploding:
+            for projectile in projectiles:
+                if self.rect.colliderect(projectile.rect):
+                    projectile.kill()
+                    self.exploding = True
+
+    def draw(self, window):  # todo this is not working right
+        if not self.exploding:
+            window.blit(self.image, self.rect.topleft)
+        else:
+            if self.current_explosion_frame > self.total_explosion_frames:
+                self.kill()
+                return
+            window.blit(self.image, self.rect.topleft)
+            window.blit(self.explosion_frames[self.current_explosion_frame], self.rect.topleft)
+            self.current_explosion_frame += 1
 
 
 # BOSS SHIP CLASS -----------------------------------------------------------------------------------------------------
@@ -230,10 +261,16 @@ class MainApp:
         self.level = 0
         self.game_phase = 0
         self.change_game_phase = [1, 5]
-        self.ships_on_screen = pygame.sprite.Group()
+        self.enemies_on_screen = pygame.sprite.Group()
         self.player = PlayerShip()
-        self.player.add(self.ships_on_screen)
-        self.projectiles_on_screen = pygame.sprite.Group()
+        self.player_group = pygame.sprite.GroupSingle()
+        self.player_group.add(self.player)
+        self.player_projectiles_on_screen = pygame.sprite.Group()
+        self.enemy_projectiles_on_screen = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group(
+            self.player_group.sprites(),
+            self.player_projectiles_on_screen.sprites(),
+            self.enemy_projectiles_on_screen.sprites())
         self.level_spawns = {
             0: [(0, 0)],
             1: [(1, 1), (2, 1)],
@@ -260,8 +297,10 @@ class MainApp:
                     if self.level == 1:
                         self.game_phase = 1
                 if event.key == pygame.K_SPACE:
-                    self.player.shoot(self.projectiles_on_screen)
-
+                    shot = self.player.shoot(self.player_projectiles_on_screen)
+                    if shot is not None:
+                        self.player_projectiles_on_screen.add(shot)
+                        self.all_sprites.add(shot)
         return
 
     def event_quit(self):
@@ -279,7 +318,6 @@ class MainApp:
 
     def event_next_level(self):
         self.level_spawns = {
-            0: [(0, 0)],
             1: [(1, 1), (2, 1)],
             2: [(2, 3)],
             3: [(3, 1), (4, 1)],
@@ -301,11 +339,13 @@ class MainApp:
             number = spawn[1]
             for i in range(number):
                 ship = EnemyShip(ship_type)
-                self.ships_on_screen.add(ship)
+                self.enemies_on_screen.add(ship)
+                self.all_sprites.add(ship)
 
     def spawn_boss(self):
         ship = BossShip()
-        self.ships_on_screen.add(ship)
+        self.enemies_on_screen.add(ship)
+        self.all_sprites.add(ship)
 
     def main(self):
         while self.run:
@@ -318,19 +358,17 @@ class MainApp:
                 self.clock.tick(FPS)
                 self.check_events()
                 self.win.blit(self.BG, (0, 0))
-                self.ships_on_screen.update()
-                self.ships_on_screen.draw(self.win)
-                self.projectiles_on_screen.update()
-                self.projectiles_on_screen.draw(self.win)
+                self.all_sprites.update()
+                for ship in self.enemies_on_screen.sprites():
+                    ship.check_collision(self.player_projectiles_on_screen)
+                self.all_sprites.draw(self.win)
                 pygame.display.flip()
             while self.game_phase == 2:
                 self.clock.tick(FPS)
                 self.check_events()
                 self.win.blit(self.BG, (0, 0))
-                self.ships_on_screen.update()
-                self.ships_on_screen.draw(self.win)
-                self.projectiles_on_screen.update()
-                self.projectiles_on_screen.draw(self.win)
+                self.all_sprites.update()
+                self.all_sprites.draw(self.win)
                 pygame.display.flip()
 
 
