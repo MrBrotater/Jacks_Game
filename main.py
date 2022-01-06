@@ -10,6 +10,15 @@ pygame.display.set_caption('Hyper Turbo Space')
 FPS = 60
 MUSIC_ON = True
 
+# ENEMY WAVE DICTIONARY ------------------------------------------------------------------------------
+LEVEL_DATA = {
+    1: [(1, 1), (2, 1)],
+    2: [(2, 3)],
+    3: [(3, 1), (4, 1)],
+    4: [(4, 1), (1, 5)],
+    5: [(6, 1)]
+}
+
 # USER EVENTS -------------------------------------------------------------------------------------
 NEXT_GAME_PHASE = pygame.USEREVENT + 1
 NEXT_LEVEL = pygame.USEREVENT + 2
@@ -282,13 +291,25 @@ class BossShip(pygame.sprite.Sprite):
 # MAIN APP CLASS ------------------------------------------------------------------------------------------------------
 class MainApp:
     def __init__(self, window):
+        # initializing game variables
         self.clock = pygame.time.Clock()
         self.win = window
         self.run = True
         self.BG = PHASE_BG_DICT[0]
         self.level = 0
         self.game_phase = 0
-        self.change_game_phase = [1, 5]
+        self.phase_change_levels = [1, 5]
+
+        # enemy wave dictionary
+        self.enemy_waves = {
+            1: [(1, 1), (2, 1)],
+            2: [(2, 3)],
+            3: [(3, 1), (4, 1)],
+            4: [(4, 1), (1, 5)],
+            5: [(6, 1)]
+        }
+
+        # initializing sprites and sprite groups
         self.enemies_on_screen = pygame.sprite.Group()
         self.player = PlayerShip()
         self.player_group = pygame.sprite.GroupSingle()
@@ -301,14 +322,6 @@ class MainApp:
             self.player_projectiles_on_screen.sprites(),
             self.enemy_projectiles_on_screen.sprites(),
             self.explosions_on_screen.sprites())
-        self.level_spawns = {
-            0: [(0, 0)],
-            1: [(1, 1), (2, 1)],
-            2: [(2, 3)],
-            3: [(3, 1), (4, 1)],
-            4: [(4, 1), (1, 5)],
-            5: [(6, 1)]
-        }
 
     def check_events(self):
         for event in pygame.event.get():
@@ -328,35 +341,27 @@ class MainApp:
                             self.all_sprites.add(shot)
         return
 
-    def event_quit(self):
-        self.run = False
-        pygame.quit()
-        return
-
-    def event_next_game_phase(self):
-        self.game_phase += 1
-        if self.game_phase in self.change_game_phase:
-            self.BG = PHASE_BG_DICT[self.game_phase]
-        if MUSIC_ON:
-            pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
-            pygame.mixer.music.play(-1, 0.0)
-
     def event_next_level(self):
-        self.level_spawns = {
-            1: [(1, 1), (2, 1)],
-            2: [(2, 3)],
-            3: [(3, 1), (4, 1)],
-            4: [(4, 1), (1, 5)],
-            5: [(6, 1)]
-        }
         self.level += 1
-        if self.level in self.change_game_phase:
-            self.event_next_game_phase()
+
+        if self.level in self.phase_change_levels:
+            self.BG = PHASE_BG_DICT[self.game_phase]
+            if MUSIC_ON:
+                pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
+                pygame.mixer.music.play(-1, 0.0)
+
         if self.game_phase == 1:
-            self.spawn_enemies(self.level_spawns[self.level])
+            for wave in self.enemy_waves[self.level]:
+                ship_type, number = wave[0], wave[1]
+                for i in range(number):
+                    ship = EnemyShip(ship_type)
+                    self.enemies_on_screen.add(ship)
+                    self.all_sprites.add(ship)
+
         if self.game_phase == 2:
-            self.spawn_boss()
-        return
+            ship = BossShip()
+            self.enemies_on_screen.add(ship)
+            self.all_sprites.add(ship)
 
     def spawn_enemies(self, level_data):
         for spawn in level_data:
@@ -366,11 +371,6 @@ class MainApp:
                 ship = EnemyShip(ship_type)
                 self.enemies_on_screen.add(ship)
                 self.all_sprites.add(ship)
-
-    def spawn_boss(self):
-        ship = BossShip()
-        self.enemies_on_screen.add(ship)
-        self.all_sprites.add(ship)
 
     def phase_0(self):  # ----- INTRO SCREEN ----- #
         if MUSIC_ON:
