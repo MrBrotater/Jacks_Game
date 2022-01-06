@@ -86,7 +86,7 @@ PHASE_BG_DICT = {
 # ANIMATIONS --------------------------------------------------------------------------------------
 EXPLOSION_FILES = os.listdir(os.path.join('Images', 'explosion'))
 EXPLOSION_FRAMES_FULLSIZE = [pygame.image.load(os.path.join('Images', 'explosion', frame)) for frame in EXPLOSION_FILES]
-EXPLOSION_FRAMES = [pygame.transform.scale(image, (100, 100)) for image in EXPLOSION_FRAMES_FULLSIZE]
+EXPLOSION_FRAMES = [pygame.transform.scale(image, (250, 250)) for image in EXPLOSION_FRAMES_FULLSIZE]
 
 # MUSIC -------------------------------------------------------------------------------------------
 PHASE_0_MUSIC = os.path.join('Music', 'phase_0_music.ogg')
@@ -293,18 +293,11 @@ class MainApp:
         }
 
     def check_events(self):
-        event_dict = {
-            pygame.QUIT: self.event_quit,
-            NEXT_GAME_PHASE: self.event_next_level,
-            NEXT_LEVEL: self.event_next_level
-        }
-
         for event in pygame.event.get():
-
-            if event.type in event_dict:
-                event_dict[event.type]()
-
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.QUIT:
+                self.run = False
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     self.event_next_level()
                     if self.level == 1:
