@@ -14,6 +14,8 @@ MUSIC_ON = True
 NEXT_GAME_PHASE = pygame.USEREVENT + 1
 NEXT_LEVEL = pygame.USEREVENT + 2
 PLAYER_SHOT = pygame.USEREVENT + 3
+GAME_LOST = pygame.USEREVENT + 4
+GAME_WON = pygame.USEREVENT + 5
 
 # IMAGE SCALING -----------------------------------------------------------------------------------
 PLAYER_SHIP_TGT_WIDTH = 150
@@ -115,26 +117,42 @@ class PlayerShip(pygame.sprite.Sprite):
         self.x_pos, self.y_pos = self.image.get_width() // 2, SCREEN_HEIGHT / 2
         self.rect.center = (self.x_pos, self.y_pos)
         self.speed = 10
-        self.max_shots = 6
+        self.max_shots = 12
+        self.health = 6
+        self.current_explosion_frame = 0
+        self.explosion_frames = EXPLOSION_FRAMES
+        self.total_explosion_frames = len(self.explosion_frames)
+        self.exploding = False
 
     def shoot(self, sprite_group):
         if len(sprite_group.sprites()) < self.max_shots:
-            proj = Projectile(PROJ_GREEN_IMAGE, self.rect.midright, 1)
+            shots = [
+                Projectile(PROJ_GREEN_IMAGE, (self.rect.right, self.rect.top + self.rect.height * 0.3), 1),
+                Projectile(PROJ_GREEN_IMAGE, (self.rect.right, self.rect.top + self.rect.height * 0.7), 1)]
             pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
-            return proj
-        return None
+            return shots
+        return []
+
+    def hit(self):
+        self.health -= 1
+        if self.health == 0:
+            self.exploding = True
 
     def update(self):
-        keys_pressed = pygame.key.get_pressed()
-        if keys_pressed[pygame.K_LEFT] and self.rect.left > 0:  # LEFT
-            self.x_pos -= self.speed
-        if keys_pressed[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:  # RIGHT
-            self.x_pos += self.speed
-        if keys_pressed[pygame.K_UP] and self.rect.top > 0:  # UP
-            self.y_pos -= self.speed
-        if keys_pressed[pygame.K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:  # DOWN
-            self.y_pos += self.speed
-        self.rect.center = (self.x_pos, self.y_pos)
+        if not self.exploding:
+            keys_pressed = pygame.key.get_pressed()
+            if keys_pressed[pygame.K_LEFT] and self.rect.left > 0:  # LEFT
+                self.x_pos -= self.speed
+            if keys_pressed[pygame.K_RIGHT] and self.rect.right < SCREEN_WIDTH:  # RIGHT
+                self.x_pos += self.speed
+            if keys_pressed[pygame.K_UP] and self.rect.top > 0:  # UP
+                self.y_pos -= self.speed
+            if keys_pressed[pygame.K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:  # DOWN
+                self.y_pos += self.speed
+            self.rect.center = (self.x_pos, self.y_pos)
+        else:
+            self.kill()
+        return
 
 
 # PROJECTILE CLASS ----------------------------------------------------------------------------------------------------
@@ -303,10 +321,11 @@ class MainApp:
                     if self.level == 1:
                         self.game_phase = 1
                 if event.key == pygame.K_SPACE:
-                    shot = self.player.shoot(self.player_projectiles_on_screen)
-                    if shot is not None:
-                        self.player_projectiles_on_screen.add(shot)
-                        self.all_sprites.add(shot)
+                    shots = self.player.shoot(self.player_projectiles_on_screen)
+                    if len(shots) > 0:
+                        for shot in shots:
+                            self.player_projectiles_on_screen.add(shot)
+                            self.all_sprites.add(shot)
         return
 
     def event_quit(self):
@@ -353,37 +372,55 @@ class MainApp:
         self.enemies_on_screen.add(ship)
         self.all_sprites.add(ship)
 
+    def phase_0(self):  # ----- INTRO SCREEN ----- #
+        if MUSIC_ON:
+            pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
+            pygame.mixer.music.play(-1, 0.0)
+
+        while self.game_phase == 0:
+            self.check_events()
+            self.win.blit(self.BG, (0, 0))
+            pygame.display.flip()
+            self.clock.tick(FPS)
+
+    def phase_1(self):  # ----- ENEMY WAVES ----- #
+        if MUSIC_ON:
+            pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
+            pygame.mixer.music.play(-1, 0.0)
+
+        while self.game_phase == 1:
+            self.clock.tick(FPS)
+            self.check_events()
+            self.win.blit(self.BG, (0, 0))
+            self.all_sprites.update()
+            for ship in self.enemies_on_screen.sprites():
+                explosion = ship.check_collision(self.player_projectiles_on_screen)
+                if explosion is not None:
+                    self.explosions_on_screen.add(explosion)
+                    self.all_sprites.add(explosion)
+            self.all_sprites.draw(self.win)
+            pygame.display.flip()
+            if len(self.enemies_on_screen.sprites()) == 0:
+                self.event_next_level()
+
+    def phase_2(self):  # ----- BOSS FIGHT ----- #
+        if MUSIC_ON:
+            pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
+            pygame.mixer.music.play(-1, 0.0)
+
+        while self.game_phase == 2:
+            self.clock.tick(FPS)
+            self.check_events()
+            self.win.blit(self.BG, (0, 0))
+            self.all_sprites.update()
+            self.all_sprites.draw(self.win)
+            pygame.display.flip()
+
     def main(self):
         while self.run:
-            if MUSIC_ON:
-                pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
-                pygame.mixer.music.play(-1, 0.0)
-            while self.game_phase == 0:
-                self.clock.tick(FPS)
-                self.check_events()
-                self.win.blit(self.BG, (0, 0))
-                pygame.display.flip()
-            while self.game_phase == 1:
-                self.clock.tick(FPS)
-                self.check_events()
-                self.win.blit(self.BG, (0, 0))
-                self.all_sprites.update()
-                for ship in self.enemies_on_screen.sprites():
-                    explosion = ship.check_collision(self.player_projectiles_on_screen)
-                    if explosion is not None:
-                        self.explosions_on_screen.add(explosion)
-                        self.all_sprites.add(explosion)
-                self.all_sprites.draw(self.win)
-                pygame.display.flip()
-                if len(self.enemies_on_screen.sprites()) == 0:
-                    self.event_next_level()
-            while self.game_phase == 2:
-                self.clock.tick(FPS)
-                self.check_events()
-                self.win.blit(self.BG, (0, 0))
-                self.all_sprites.update()
-                self.all_sprites.draw(self.win)
-                pygame.display.flip()
+            self.phase_0()
+            self.phase_1()
+            self.phase_2()
 
 
 # RUNTIME CODE ---------------------------------------------------------------------------------------------------------
