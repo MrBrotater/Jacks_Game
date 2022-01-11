@@ -117,6 +117,11 @@ ENEMY_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'enemy_hit.wa
 PLAYER_SHIP_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'player_ship_hit.wav'))
 
 
+# FONTS -------------------------------------------------------------
+FONT_1 = pygame.font.SysFont('comicsans', SCREEN_HEIGHT//20)
+FONT_2 = pygame.font.SysFont('comicsans', SCREEN_HEIGHT // 4)
+
+
 # PLAYER SHIP CLASS --------------------------------------------------------------------------------------------------
 class PlayerShip(pygame.sprite.Sprite):
     def __init__(self):
@@ -127,7 +132,8 @@ class PlayerShip(pygame.sprite.Sprite):
         self.rect.center = (self.x_pos, self.y_pos)
         self.speed = 10
         self.max_shots = 12
-        self.health = 6
+        self.health = 10
+        self.heath_txt = FONT_1.render(f'Health: {self.health}', True, (255, 255, 255))
         self.current_explosion_frame = 0
         self.explosion_frames = EXPLOSION_FRAMES
         self.total_explosion_frames = len(self.explosion_frames)
@@ -144,8 +150,17 @@ class PlayerShip(pygame.sprite.Sprite):
 
     def hit(self):
         self.health -= 1
+        self.heath_txt = FONT_1.render(f'Health: {self.health}', True, (255, 255, 255))
+        pygame.mixer.Sound.play(PLAYER_SHIP_HIT_SOUND)
         if self.health == 0:
-            self.exploding = True
+            pygame.event.post(pygame.event.Event(GAME_LOST))
+
+    def check_collision(self, projectiles):
+        if not self.exploding:
+            for projectile in projectiles:
+                if self.rect.colliderect(projectile.rect):
+                    projectile.kill()
+                    self.hit()
 
     def update(self):
         if not self.exploding:
@@ -159,9 +174,6 @@ class PlayerShip(pygame.sprite.Sprite):
             if keys_pressed[pygame.K_DOWN] and self.rect.bottom < SCREEN_HEIGHT:  # DOWN
                 self.y_pos += self.speed
             self.rect.center = (self.x_pos, self.y_pos)
-        else:
-            self.kill()
-        return
 
 
 # PROJECTILE CLASS ----------------------------------------------------------------------------------------------------
@@ -247,9 +259,17 @@ class EnemyShip(pygame.sprite.Sprite):
             for projectile in projectiles:
                 if self.rect.colliderect(projectile.rect):
                     projectile.kill()
+                    pygame.mixer.Sound.play(ENEMY_HIT_SOUND)
                     explosion = Explosion(self.image, self.rect.center)
                     self.exploding = True
                     return explosion
+
+    def shoot(self, sprite_group):
+        rand = random.randint(0, 500)
+        if rand > 495:
+            shot = Projectile(PROJ_RED_IMAGE, self.rect.midleft, -1)
+            pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
+            sprite_group.add(shot)
 
 
 # BOSS SHIP CLASS -----------------------------------------------------------------------------------------------------
@@ -266,8 +286,9 @@ class BossShip(pygame.sprite.Sprite):
         self.speed = 3
         self.x_direction = random.choice([1, -1])
         self.y_direction = random.choice([1, -1])
-        self.hit_box = (self.rect.right - self.rect.width * 0.25, self.rect.top,
-                        self.rect.width * 0.25, self.rect.height * 0.25)
+        self.health = 20
+        self.hit_box = pygame.Rect(self.rect.right, self.rect.top,
+                        self.rect.width * 0.20, self.rect.height * 0.20)
 
     def update(self):
         if self.x_direction == 1 and self.rect.right + self.speed > SCREEN_WIDTH:
@@ -283,9 +304,45 @@ class BossShip(pygame.sprite.Sprite):
         self.y_pos += self.speed * self.y_direction
 
         self.rect.center = (self.x_pos, self.y_pos)
-        self.hit_box = (self.rect.right - self.rect.width * 0.25, self.rect.top,
-                        self.rect.width * 0.25, self.rect.height * 0.25)
-        return
+        self.hit_box.topright = self.rect.topright
+
+    def check_collision(self, projectiles):
+        for projectile in projectiles:
+            if self.hit_box.colliderect(projectile.rect):
+                projectile.kill()
+                pygame.mixer.Sound.play(ENEMY_HIT_SOUND)
+                self.health -= 1
+                if self.health == 0:
+                    pygame.event.post(pygame.event.Event(GAME_WON))
+                    self.kill()
+                return
+
+    def shoot(self, sprite_group):
+        gun_1 = random.randint(0, 500)
+        if gun_1 > 495:
+            shot = Projectile(PROJ_RED_IMAGE, (self.x_pos, self.y_pos - 50), -1)
+            pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
+            sprite_group.add(shot)
+        gun_2 = random.randint(0, 500)
+        if gun_2 > 495:
+            shot = Projectile(PROJ_RED_IMAGE, (self.x_pos, self.y_pos), -1)
+            pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
+            sprite_group.add(shot)
+        gun_3 = random.randint(0, 500)
+        if gun_3 > 490:
+            shot = Projectile(PROJ_RED_IMAGE, (self.x_pos, self.y_pos + 50), -1)
+            pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
+            sprite_group.add(shot)
+        gun_4 = random.randint(0, 500)
+        if gun_4 > 490:
+            shot = Projectile(PROJ_RED_IMAGE, (self.x_pos, self.y_pos + 100), -1)
+            pygame.mixer.Sound.play(PLAYER_LASER_SOUND)
+            sprite_group.add(shot)
+        cannon = random.randint(0, 500)
+        if cannon > 480:
+            shot = Projectile(PROJ_BOSS_IMAGE, (self.x_pos, self.y_pos + 150), -1)
+            pygame.mixer.Sound.play(BOSS_CANNON_SOUND)
+            sprite_group.add(shot)
 
 
 # MAIN APP CLASS ------------------------------------------------------------------------------------------------------
@@ -297,6 +354,7 @@ class MainApp:
         self.run = True
         self.BG = PHASE_BG_DICT[0]
         self.level = 0
+        self.level_text = FONT_1.render(f'Level: {self.level}', True, (255, 255, 255))
         self.game_phase = 0
         self.phase_change_levels = [1, 5]
 
@@ -306,7 +364,7 @@ class MainApp:
             2: [(2, 3)],
             3: [(3, 1), (4, 1)],
             4: [(4, 1), (1, 5)],
-            5: [(6, 1)]
+            5: [(5, 1)]
         }
 
         # initializing sprites and sprite groups
@@ -328,11 +386,15 @@ class MainApp:
             if event.type == pygame.QUIT:
                 self.run = False
                 pygame.quit()
+            elif event.type == GAME_LOST:
+                self.game_phase = 'GAMEOVER'
+                self.game_over()
+            elif event.type == GAME_WON:
+                self.game_phase = 'WIN'
+                self.game_won()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_p:
                     self.event_next_level()
-                    if self.level == 1:
-                        self.game_phase = 1
                 if event.key == pygame.K_SPACE:
                     shots = self.player.shoot(self.player_projectiles_on_screen)
                     if len(shots) > 0:
@@ -343,14 +405,14 @@ class MainApp:
 
     def event_next_level(self):
         self.level += 1
-
-        if self.level in self.phase_change_levels:
-            self.BG = PHASE_BG_DICT[self.game_phase]
-            if MUSIC_ON:
-                pygame.mixer.music.load(MUSIC_FILE_DICT[self.game_phase])
-                pygame.mixer.music.play(-1, 0.0)
+        self.level_text = FONT_1.render(f'Level: {self.level}', True, (255, 255, 255))
+        if self.level == 1:
+            self.game_phase = 1
+        elif self.level == 5:
+            self.game_phase = 2
 
         if self.game_phase == 1:
+            self.BG = PHASE_BG_DICT[2]
             for wave in self.enemy_waves[self.level]:
                 ship_type, number = wave[0], wave[1]
                 for i in range(number):
@@ -362,15 +424,6 @@ class MainApp:
             ship = BossShip()
             self.enemies_on_screen.add(ship)
             self.all_sprites.add(ship)
-
-    def spawn_enemies(self, level_data):
-        for spawn in level_data:
-            ship_type = spawn[0]
-            number = spawn[1]
-            for i in range(number):
-                ship = EnemyShip(ship_type)
-                self.enemies_on_screen.add(ship)
-                self.all_sprites.add(ship)
 
     def phase_0(self):  # ----- INTRO SCREEN ----- #
         if MUSIC_ON:
@@ -398,7 +451,13 @@ class MainApp:
                 if explosion is not None:
                     self.explosions_on_screen.add(explosion)
                     self.all_sprites.add(explosion)
+            for ship in self.enemies_on_screen.sprites():
+                ship.shoot(self.enemy_projectiles_on_screen)
+                self.all_sprites.add(self.enemy_projectiles_on_screen)
+            self.player.check_collision(self.enemy_projectiles_on_screen.sprites())
             self.all_sprites.draw(self.win)
+            self.win.blit(self.player.heath_txt, (5, 5))
+            self.win.blit(self.level_text, (500, 5))
             pygame.display.flip()
             if len(self.enemies_on_screen.sprites()) == 0:
                 self.event_next_level()
@@ -413,7 +472,34 @@ class MainApp:
             self.check_events()
             self.win.blit(self.BG, (0, 0))
             self.all_sprites.update()
+
+            for ship in self.enemies_on_screen.sprites():
+                ship.check_collision(self.player_projectiles_on_screen)
+                ship.shoot(self.enemy_projectiles_on_screen)
+                self.all_sprites.add(self.enemy_projectiles_on_screen)
+            self.player.check_collision(self.enemy_projectiles_on_screen.sprites())
+
             self.all_sprites.draw(self.win)
+            self.win.blit(self.player.heath_txt, (5, 5))
+
+            pygame.display.flip()
+
+    def game_over(self):
+        gameover_text = FONT_2.render('GAME OVER', True, (255, 255, 255))
+        while self.game_phase == 'GAMEOVER':
+            self.check_events()
+            self.clock.tick(FPS)
+            self.win.blit(self.BG, (0, 0))
+            self.win.blit(gameover_text, (0, 0))
+            pygame.display.flip()
+
+    def game_won(self):
+        game_won_text = FONT_2.render('YOU WON!', True, (255, 255, 255))
+        while self.game_phase == 'WIN':
+            self.check_events()
+            self.clock.tick(FPS)
+            self.win.blit(self.BG, (0, 0))
+            self.win.blit(game_won_text, (0, 0))
             pygame.display.flip()
 
     def main(self):
