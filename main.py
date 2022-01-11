@@ -114,7 +114,7 @@ MUSIC_FILE_DICT = {
 PLAYER_LASER_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'player_laser.wav'))
 BOSS_CANNON_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'boss_cannon.wav'))
 ENEMY_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'enemy_hit.wav'))
-PLAYER_SHIP_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'player_ship_hit.wav'))
+PLAYER_SHIP_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'explosion3.wav'))
 
 
 # FONTS -------------------------------------------------------------
@@ -286,7 +286,7 @@ class BossShip(pygame.sprite.Sprite):
         self.speed = 3
         self.x_direction = random.choice([1, -1])
         self.y_direction = random.choice([1, -1])
-        self.health = 20
+        self.health = 10
         self.hit_box = pygame.Rect(self.rect.right, self.rect.top,
                         self.rect.width * 0.20, self.rect.height * 0.20)
 
@@ -490,7 +490,7 @@ class MainApp:
             self.check_events()
             self.clock.tick(FPS)
             self.win.blit(self.BG, (0, 0))
-            self.win.blit(gameover_text, (0, 0))
+            self.win.blit(gameover_text, (0, SCREEN_HEIGHT // 2))
             pygame.display.flip()
 
     def game_won(self):
@@ -499,7 +499,7 @@ class MainApp:
             self.check_events()
             self.clock.tick(FPS)
             self.win.blit(self.BG, (0, 0))
-            self.win.blit(game_won_text, (0, 0))
+            self.win.blit(game_won_text, (0,  SCREEN_HEIGHT // 2))
             pygame.display.flip()
 
     def main(self):
