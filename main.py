@@ -382,6 +382,26 @@ class MainApp:
             self.enemy_projectiles_on_screen.sprites(),
             self.explosions_on_screen.sprites())
 
+    def reset(self):
+        self.BG = PHASE_BG_DICT[0]
+        self.level = 0
+        self.level_text = FONT_1.render(f'Level: {self.level}', True, (255, 255, 255))
+        self.game_phase = 0
+        self.all_sprites.sprites().pop()
+
+        self.enemies_on_screen = pygame.sprite.Group()
+        self.player = PlayerShip()
+        self.player_group = pygame.sprite.GroupSingle()
+        self.player_group.add(self.player)
+        self.player_projectiles_on_screen = pygame.sprite.Group()
+        self.enemy_projectiles_on_screen = pygame.sprite.Group()
+        self.explosions_on_screen = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.Group(
+            self.player_group.sprites(),
+            self.player_projectiles_on_screen.sprites(),
+            self.enemy_projectiles_on_screen.sprites(),
+            self.explosions_on_screen.sprites())
+
     def check_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -501,12 +521,6 @@ class MainApp:
         sleep(2)
         self.reset()
 
-    def reset(self):
-        self.BG = PHASE_BG_DICT[0]
-        self.level = 0
-        self.level_text = FONT_1.render(f'Level: {self.level}', True, (255, 255, 255))
-        self.game_phase = 0
-        self.player.health = 10
 
     def main(self):
         phases = {0: self.phase_0, 1: self.phase_1, 2: self.phase_2}
