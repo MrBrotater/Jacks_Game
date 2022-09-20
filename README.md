@@ -2,7 +2,7 @@
 This game was a short collaborative project with my nephew Jack, who drew most of the game sprites.  Sources for all game assets not created by us are included in the "credits" file.
 
 
-# Table of contents
+# Credits
 
 Asset Type   | File Name     | Source 
 ------------- | ------------- | --------    |
@@ -22,11 +22,9 @@ Image      |  Red_laser_200x37.png         |   Jack      |
 Image      |  Title_screen.png          |   Jack      |
 Image      |  Space_background.png      |   https://wallpaperboat.com/blue-galaxy-wallpapers   |
 Image      |  explosion/all frames      |   https://opengameart.org/content/2d-explosion-animations-frame-by-frame   |
-
-MUSIC -----------------------------------------------------------------------------------------------------------------
-Boss_music.mp3                      https://opengameart.org/content/colossal-boss-battle-theme
-phase_0_music.ogg                   https://opengameart.org/content/xeon-theme-remastered
-phase_1_music.mp3                   https://opengameart.org/content/space-marines
+Music     |    Boss_music.mp3           |           https://opengameart.org/content/colossal-boss-battle-theme   |
+Music      |    phase_0_music.ogg        |           https://opengameart.org/content/xeon-theme-remastered   |
+Music       |   phase_1_music.mp3         |          https://opengameart.org/content/space-marines   |
 
 SOUNDS ----------------------------------------------------------------------------------------------------------------
 boss_cannon.wav                     https://opengameart.org/content/space-battle-game-sounds-astromenace
