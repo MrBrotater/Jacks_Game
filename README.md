@@ -1,11 +1,19 @@
 # General Info
 This game was a short collaborative project with my nephew Jack, who drew most of the game sprites.  Sources for all game assets not created by us are included in the "credits" file.
 
+
+# Table of contents
+
+General info    | Technologies     | setup 
+------------- | ------------- | --------    |
+Info      |  Test         |   Test      |
+
+
 # Credits
 IMAGE ASSETS ----------------------------------------------------------------------------------------------------------
-Boss_cannon_laser_250x33.png        ME
-Boss_ship_750x487.png               JACK
-Enemy_ship_1_500x275.png            JACK
+Boss_cannon_laser_250x33.png |        ME
+Boss_ship_750x487.png         |      JACK
+Enemy_ship_1_500x275.png       |     JACK
 Enemy_ship_2_500x299.png            JACK
 Enemy_ship_3_500x419.png            JACK
 Enemy_ship_4_500x126.png            JACK
