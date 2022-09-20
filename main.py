@@ -1,6 +1,7 @@
 import pygame
 import os
 import random
+from time import sleep
 pygame.init()
 
 # GAME WINDOW -----------------------------------------------------------------------------------
@@ -118,7 +119,7 @@ PLAYER_SHIP_HIT_SOUND = pygame.mixer.Sound(os.path.join('Sound Effects', 'explos
 
 
 # FONTS -------------------------------------------------------------
-FONT_1 = pygame.font.SysFont('comicsans', SCREEN_HEIGHT//20)
+FONT_1 = pygame.font.SysFont('comicsans', SCREEN_HEIGHT // 20)
 FONT_2 = pygame.font.SysFont('comicsans', SCREEN_HEIGHT // 4)
 
 
@@ -486,27 +487,31 @@ class MainApp:
 
     def game_over(self):
         gameover_text = FONT_2.render('GAME OVER', True, (255, 255, 255))
-        while self.game_phase == 'GAMEOVER':
-            self.check_events()
-            self.clock.tick(FPS)
-            self.win.blit(self.BG, (0, 0))
-            self.win.blit(gameover_text, (0, SCREEN_HEIGHT // 2))
-            pygame.display.flip()
+        self.win.blit(self.BG, (0, 0))
+        self.win.blit(gameover_text, (0, SCREEN_HEIGHT // 2))
+        pygame.display.flip()
+        sleep(2)
+        self.reset()
 
     def game_won(self):
         game_won_text = FONT_2.render('YOU WON!', True, (255, 255, 255))
-        while self.game_phase == 'WIN':
-            self.check_events()
-            self.clock.tick(FPS)
-            self.win.blit(self.BG, (0, 0))
-            self.win.blit(game_won_text, (0,  SCREEN_HEIGHT // 2))
-            pygame.display.flip()
+        self.win.blit(self.BG, (0, 0))
+        self.win.blit(game_won_text, (0, SCREEN_HEIGHT // 2))
+        pygame.display.flip()
+        sleep(2)
+        self.reset()
+
+    def reset(self):
+        self.BG = PHASE_BG_DICT[0]
+        self.level = 0
+        self.level_text = FONT_1.render(f'Level: {self.level}', True, (255, 255, 255))
+        self.game_phase = 0
+        self.player.health = 10
 
     def main(self):
+        phases = {0: self.phase_0, 1: self.phase_1, 2: self.phase_2}
         while self.run:
-            self.phase_0()
-            self.phase_1()
-            self.phase_2()
+            phases[self.game_phase]()
 
 
 # RUNTIME CODE ---------------------------------------------------------------------------------------------------------
