@@ -1,6 +1,8 @@
 # General Info
-This game was a short collaborative project with my nephew Jack, who drew most of the game sprites.  Sources for all game assets not created by us are included in the "credits" file.
+This game was a short collaborative project with my nephew Jack, who drew most of the game sprites.  
 
+# Instructions
+Download the latest release and run main.exe or main.py
 
 # Credits
 
@@ -25,9 +27,7 @@ Image      |  explosion/all frames      |   https://opengameart.org/content/2d-e
 Music     |    Boss_music.mp3           |           https://opengameart.org/content/colossal-boss-battle-theme   |
 Music      |    phase_0_music.ogg        |           https://opengameart.org/content/xeon-theme-remastered   |
 Music       |   phase_1_music.mp3         |          https://opengameart.org/content/space-marines   |
-
-SOUNDS ----------------------------------------------------------------------------------------------------------------
-boss_cannon.wav                     https://opengameart.org/content/space-battle-game-sounds-astromenace
-enemy_ship_hit.wav                  https://opengameart.org/content/space-battle-game-sounds-astromenace
-player_laser.wav                    https://opengameart.org/content/space-battle-game-sounds-astromenace
-player_ship_hit.wav                 https://opengameart.org/content/space-battle-game-sounds-astromenace
+Sound Effect  |    boss_cannon.wav           |          https://opengameart.org/content/space-battle-game-sounds-astromenace   |
+Sound Effect  |    enemy_ship_hit.wav         |         https://opengameart.org/content/space-battle-game-sounds-astromenace  |
+Sound Effect  |    player_laser.wav            |        https://opengameart.org/content/space-battle-game-sounds-astromenace  |
+Sound Effect  |    player_ship_hit.wav          |       https://opengameart.org/content/space-battle-game-sounds-astromenace  |
